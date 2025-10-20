@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
       setHydrated: (value: boolean) => set({ hydrated: value }),
 
       login: (user, token, serverCart) => {
+        if (typeof window === "undefined") return; // prevent SSR crash
         set({ user, token });
 
         // Sync cart if serverCart provided
@@ -41,6 +42,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        if (typeof window === "undefined") return; // prevent SSR crash
         set({ user: null, token: null });
         useCartStore.getState().clear();
       },
@@ -52,7 +54,6 @@ export const useAuthStore = create<AuthState>()(
       storage: localStorageAdapter,
       partialize: (state) => ({ user: state.user, token: state.token }),
       onRehydrateStorage: () => (state) => {
-        // called after hydration
         if (state) state.setHydrated(true);
       },
     }
