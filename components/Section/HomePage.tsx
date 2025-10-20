@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import Headers from "./Headers";
+
 import ProductsPage from "@/app/product/page";
 import HeroBanner from "./HeroBanner";
-import Footer from "./Footer";
 
 import Message from "./Message";
 import CategoryProducts from "./Category";

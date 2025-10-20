@@ -6,6 +6,10 @@ import HomePage from "@/components/Section/HomePage";
 import MobileHome from "@/components/MobileSection/MobileHome";
 import { useIsMobile } from "@/lib/mobile";
 
+
+export const dynamic = "force-dynamic";
+
+
 const DashboardPage = () => {
   const searchParams = useSearchParams();
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
