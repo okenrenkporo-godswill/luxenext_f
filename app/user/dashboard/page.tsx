@@ -1,11 +1,6 @@
-// app/user/dashboard/page.tsx
-import dynamic from "next/dynamic";
+"use client"; // <--- add this at the top
 
-// Dynamically import DashboardClient as client component (no SSR)
-const DashboardClient = dynamic(
-  () => import("@/components/Section/DashboardClient"),
-  { ssr: false } // <-- important
-);
+import DashboardClient from "@/components/Section/DashboardClient";
 
 export default function Page() {
   return <DashboardClient />;
