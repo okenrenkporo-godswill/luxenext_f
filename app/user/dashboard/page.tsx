@@ -1,11 +1,12 @@
 // app/user/dashboard/page.tsx
-import React, { Suspense } from "react";
-import DashboardClient from "@/components/Section/DashboardClient";
+import dynamic from "next/dynamic";
 
-const Page = () => (
-  <Suspense fallback={<div>Loading...</div>}>
-    <DashboardClient />
-  </Suspense>
+// Dynamically import DashboardClient as client component (no SSR)
+const DashboardClient = dynamic(
+  () => import("@/components/Section/DashboardClient"),
+  { ssr: false } // <-- important
 );
 
-export default Page;
+export default function Page() {
+  return <DashboardClient />;
+}
