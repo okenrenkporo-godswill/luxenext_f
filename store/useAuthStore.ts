@@ -16,7 +16,7 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (user: User, token: string, serverCart?: CartItem[]) => Promise<void>;
+  login: (user: User, token: string, serverCart?: CartItem[]) => void;
   logout: () => void;
   isLoggedIn: () => boolean;
 }
@@ -28,20 +28,12 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isLoading: false,
 
-      login: async (user, token, serverCart) => {
-        set({ isLoading: true });
-        try {
-          // Save user and token
-          set({ user, token });
+      login: (user, token, serverCart) => {
+        set({ user, token });
 
-          // Sync cart if serverCart provided
-          if (serverCart && serverCart.length > 0) {
-            useCartStore.getState().setCart(serverCart);
-          }
-        } catch (err) {
-          console.error("❌ Failed to login:", err);
-        } finally {
-          set({ isLoading: false });
+        // Sync cart if serverCart provided
+        if (serverCart && serverCart.length > 0) {
+          useCartStore.getState().setCart(serverCart);
         }
       },
 
@@ -55,7 +47,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage", // localStorage key
       storage: localStorageAdapter, // custom localStorage adapter
-      partialize: (state) => ({ user: state.user, token: state.token }), // only save user & token
+      partialize: (state) => ({ user: state.user, token: state.token }), // only persist user & token
     }
   )
 );
