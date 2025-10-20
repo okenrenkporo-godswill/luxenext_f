@@ -1,32 +1,24 @@
 "use client";
 
-import { useCartStore } from "@/store/useCartStore";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-// ✅ Schema
-const formSchema = z.object({
+// ✅ Login validation schema
+const loginSchema = z.object({
   email: z.string().email({ message: "Enter a valid email address" }),
-  password: z.string().min(6, { message: "Minimum of 6 characters" }),
+  password: z.string().min(6, { message: "Minimum 6 characters" }),
 });
 
-// ✅ Role to dashboard mapping
+// Role → dashboard mapping
 const DASHBOARD_ROUTES: Record<string, string> = {
   superadmin: "/admin/dashboard",
   admin: "/admin/dashboard",
@@ -35,46 +27,53 @@ const DASHBOARD_ROUTES: Record<string, string> = {
 
 export function Login() {
   const router = useRouter();
+  const authStore = useAuthStore();
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  // React Hook Form
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (authStore.isLoggedIn()) {
+      const rolePath = DASHBOARD_ROUTES[authStore.user?.role || "user"];
+      router.replace(rolePath);
+    }
+  }, [authStore, router]);
 
-  const onSubmit = async (value: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setLoading(true);
-
     try {
-      const res = await fetch(`api/auth/login`, {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(value),
+        body: JSON.stringify(values),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        toast.error(data.error || data.detail || "Login failed");
+      if (!res.ok || !data.token || !data.user) {
+        toast.error(data.error || "Login failed");
         return;
       }
 
-      // Save user + token
-      const authStore = useAuthStore.getState();
+      // ✅ Save user + token in Zustand store
       await authStore.login(data.user, data.token);
 
-      
+      toast.success("Login successful");
 
       // ✅ Redirect based on role
       const rolePath = DASHBOARD_ROUTES[data.user.role] || "/user/dashboard";
       router.replace(rolePath);
 
-      toast.success("Login successful");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error:", err);
-      toast.error("Something went wrong during login");
+      toast.error(err?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -83,9 +82,7 @@ export function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl border border-gray-200">
-        <h2 className="mb-2 text-center text-2xl font-bold text-gray-800">
-          Welcome Back 👋
-        </h2>
+        <h2 className="mb-2 text-center text-2xl font-bold text-gray-800">Welcome Back 👋</h2>
         <p className="mb-6 text-center text-gray-500">Login to your account</p>
 
         <Form {...form}>
@@ -103,7 +100,6 @@ export function Login() {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="password"
@@ -112,15 +108,12 @@ export function Login() {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input
-                        {...field}
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                      />
+                      <Input {...field} type={showPassword ? "text" : "password"} placeholder="Enter your password" />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-2.5"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -130,7 +123,6 @@ export function Login() {
                 </FormItem>
               )}
             />
-
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? (
                 <>
@@ -145,11 +137,7 @@ export function Login() {
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <button
-            type="button"
-            onClick={() => router.push("/register")}
-            className="font-semibold text-green-600 hover:underline"
-          >
+          <button type="button" onClick={() => router.push("/register")} className="font-semibold text-green-600 hover:underline">
             Register
           </button>
         </p>

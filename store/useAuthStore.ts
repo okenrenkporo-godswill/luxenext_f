@@ -3,7 +3,6 @@ import { persist } from "zustand/middleware";
 import { CartItem, useCartStore } from "./useCartStore";
 import { localStorageAdapter } from "@/lib/utils";
 
-
 export interface User {
   id: number;
   username: string;
@@ -32,10 +31,11 @@ export const useAuthStore = create<AuthState>()(
       login: async (user, token, serverCart) => {
         set({ isLoading: true });
         try {
+          // Save user and token
           set({ user, token });
 
-          // Sync cart from server if provided
-          if (serverCart) {
+          // Sync cart if serverCart provided
+          if (serverCart && serverCart.length > 0) {
             useCartStore.getState().setCart(serverCart);
           }
         } catch (err) {
@@ -53,9 +53,9 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: () => !!get().token,
     }),
     {
-      name: "auth-storage",
-      storage: localStorageAdapter,
-      partialize: (state) => ({ user: state.user, token: state.token }),
+      name: "auth-storage", // localStorage key
+      storage: localStorageAdapter, // custom localStorage adapter
+      partialize: (state) => ({ user: state.user, token: state.token }), // only save user & token
     }
   )
 );
