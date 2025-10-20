@@ -1,18 +1,10 @@
-import dynamic from "next/dynamic";
-import React from "react";
+"use client"; // Make this a Client Component
 
-// Dynamically import the client component, disable SSR
-const DashboardClient = dynamic(
-  () => import("@/components/Section/DashboardClient"),
-  { ssr: false }
-);
+import React from "react";
+import DashboardClient from "@/components/Section/DashboardClient";
 
 const Page = () => {
-  return (
-    <div>
-      <DashboardClient />
-    </div>
-  );
+  return <DashboardClient />;
 };
 
 export default Page;
