@@ -15,14 +15,17 @@ export const normalizeServerItem = (si: any) => {
 };
 export const localStorageAdapter = {
   getItem: (name: string) => {
+    if (typeof window === "undefined") return Promise.resolve(null);
     const value = localStorage.getItem(name);
     return value ? Promise.resolve(JSON.parse(value)) : Promise.resolve(null);
   },
   setItem: (name: string, value: any) => {
+    if (typeof window === "undefined") return Promise.resolve();
     localStorage.setItem(name, JSON.stringify(value));
     return Promise.resolve();
   },
   removeItem: (name: string) => {
+    if (typeof window === "undefined") return Promise.resolve();
     localStorage.removeItem(name);
     return Promise.resolve();
   },

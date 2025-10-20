@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "@/lib/axios"
+
 import { isAxiosError } from "axios";
+import apiClient from "@/lib/axios";
 
 export async function POST(request: NextRequest) {
   const { email, username, password } = await request.json();
 
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       "/auth/register",
       { email, username, password },
    
