@@ -13,19 +13,15 @@ interface MobileAccountProps {
 }
 
 export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
-  // Subscribe directly to token and user so drawer re-renders on login/logout
-  const token = useAuthStore((state) => state.token);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn());
   const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
-
-  const isLoggedIn = !!token;
 
   const handleLogout = async () => {
     try {
       const res = await fetch("/api/auth/logout", { method: "POST" });
       if (!res.ok) throw new Error("Logout failed");
 
-      logout(); // clear Zustand state
+      useAuthStore.getState().logout(); // clear client state
       toast.success("Logged out successfully");
       setOpen(false);
     } catch (err) {
@@ -37,8 +33,10 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerContent
-        className="w-80 p-4 flex flex-col space-y-4 left-0 top-0 fixed h-full shadow-lg bg-gradient-to-b from-green-900 to-white text-white"
+        className="w-80 p-4 flex flex-col space-y-4 left-0 top-0 fixed h-full shadow-lg 
+        bg-gradient-to-b from-green-900 to-white text-white"
       >
+        {/* Header */}
         <DrawerHeader className="flex items-center justify-between">
           <DrawerTitle className="text-white font-bold text-2xl">Account</DrawerTitle>
           <button onClick={() => setOpen(false)} className="text-white hover:text-gray-300">
@@ -54,7 +52,7 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
               <p className="text-sm text-gray-200">{user?.email || "user@email.com"}</p>
             </div>
 
-            {/* Menu */}
+            {/* Menu List */}
             <div className="flex flex-col space-y-2">
               <Link href="/wishlist">
                 <Button variant="ghost" className="w-full justify-start text-white hover:bg-green-700">
@@ -74,6 +72,7 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
                 </Button>
               </Link>
 
+              {/* Logout inside the list */}
               <button
                 onClick={handleLogout}
                 className="flex items-center w-full justify-start text-white hover:bg-red-600 rounded-lg px-3 py-2 transition-colors"
