@@ -1,33 +1,19 @@
+// pages/user/dashboard.tsx
 "use client";
 
+
+import MobileHome from "@/components/MobileSection/MobileHome";
 import HomePage from "@/components/Section/HomePage";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
-const DashboardPage = () => {
-  const searchParams = useSearchParams();
-  const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get("verified") === "success") {
-      setShowVerifiedMessage(true);
-
-      // Hide the message after 3 seconds
-      const timer = setTimeout(() => setShowVerifiedMessage(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams]);
+const UserDashboardPage = () => {
+  const isMobile = useIsMobile();
 
   return (
-    <div className="relative">
-      {showVerifiedMessage && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50">
-          ✅ Your email has been verified!
-        </div>
-      )}
-      <HomePage />
+    <div>
+      {isMobile ? <MobileHome /> : <HomePage />}
     </div>
   );
 };
 
-export default DashboardPage;
+export default UserDashboardPage;
