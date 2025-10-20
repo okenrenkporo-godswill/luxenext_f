@@ -16,7 +16,7 @@ import {
   useClearCart,
 } from "@/hook/queries";
 
-// Extend CartItem to include backend id
+// Backend cart item may include `id`
 type BackendCartItem = CartItem & { id?: number };
 
 interface MobileCartProps {
@@ -25,7 +25,6 @@ interface MobileCartProps {
 }
 
 export default function MobileCart({ open, setOpen }: MobileCartProps) {
-  // ✅ Zustand selectors
   const items = useCartStore((state) => state.items);
   const setCart = useCartStore((state) => state.setCart);
   const clear = useCartStore((state) => state.clear);
@@ -40,12 +39,11 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
 
   const [wishlist, setWishlist] = useState<number[]>([]);
 
-  // Sync backend cart with local Zustand store
+  // Sync backend cart with local store
   useEffect(() => {
     if (cartData?.length) setCart(cartData);
   }, [cartData, setCart]);
 
-  // Quantity handlers
   const handleIncrease = (item: BackendCartItem) => {
     const newQty = (item.quantity || 0) + 1;
     if (isLoggedIn && item.id) {
@@ -73,7 +71,6 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
     }
   };
 
-  // Remove single item
   const handleRemove = (item: BackendCartItem) => {
     if (isLoggedIn && item.id) {
       removeCartMutation.mutate(item.id, {
@@ -85,19 +82,17 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
     }
   };
 
-  // Clear entire cart
   const handleClear = async () => {
     try {
       if (isLoggedIn) await clearCartMutation.mutateAsync();
-      clear(); // Zustand local cart
+      clear();
       toast.success("Cart cleared!");
       setOpen(false);
-    } catch (err) {
+    } catch {
       toast.error("Failed to clear cart");
     }
   };
 
-  // Wishlist toggle
   const toggleWishlist = (product_id: number) =>
     setWishlist((prev) =>
       prev.includes(product_id)
@@ -120,7 +115,6 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
-
           <motion.div
             className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl p-4 flex flex-col z-50"
             initial={{ x: "100%" }}

@@ -1,3 +1,4 @@
+import { localStorageAdapter } from "@/lib/utils";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -16,6 +17,7 @@ interface CartState {
   updateItem: (item: CartItem) => void;
   removeItem: (product_id: number) => void;
   clear: () => void;
+  setCart: (items: CartItem[]) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -24,35 +26,52 @@ export const useCartStore = create<CartState>()(
       items: [],
       total: 0,
 
-      addItem: (item) => {
+      setCart: (items: CartItem[]) =>
+        set({
+          items,
+          total: items.reduce((acc, i) => acc + i.price * i.quantity, 0),
+        }),
+
+      addItem: (item: CartItem) => {
         const existing = get().items.find((i) => i.product_id === item.product_id);
-        let newItems;
         if (existing) {
-          newItems = get().items.map((i) =>
-            i.product_id === item.product_id ? { ...i, quantity: i.quantity + item.quantity } : i
-          );
+          get().updateItem({ ...existing, quantity: existing.quantity + item.quantity });
         } else {
-          newItems = [...get().items, item];
+          set((state) => {
+            const newItems = [...state.items, item];
+            return {
+              items: newItems,
+              total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0),
+            };
+          });
         }
-        set({ items: newItems, total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0) });
       },
 
-      updateItem: (item) => {
-        const newItems = get().items.map((i) => (i.product_id === item.product_id ? item : i));
-        set({ items: newItems, total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0) });
-      },
+      updateItem: (item: CartItem) =>
+        set((state) => {
+          const newItems = state.items.map((i) =>
+            i.product_id === item.product_id ? item : i
+          );
+          return {
+            items: newItems,
+            total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0),
+          };
+        }),
 
-      removeItem: (product_id) => {
-        const newItems = get().items.filter((i) => i.product_id !== product_id);
-        set({ items: newItems, total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0) });
-      },
+      removeItem: (product_id: number) =>
+        set((state) => {
+          const newItems = state.items.filter((i) => i.product_id !== product_id);
+          return {
+            items: newItems,
+            total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0),
+          };
+        }),
 
       clear: () => set({ items: [], total: 0 }),
     }),
     {
       name: "cart-storage",
-      // ✅ Only persist serializable data, exclude functions
-      partialize: (state) => ({ items: state.items, total: state.total }),
+      storage: localStorageAdapter,
     }
   )
 );
