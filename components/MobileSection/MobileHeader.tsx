@@ -1,25 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, Sun, Moon, LogOut, User } from "lucide-react";
+import { Search, ShoppingCart, Sun, Moon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import MobileCart from "./MobileCart";
 import MobileSearch from "./MobileSearch";
 import { useCartStore } from "@/store/useCartStore";
-import { useAuthStore } from "@/store/useAuthStore";
-
-const useHydrated = () => {
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
-  return hydrated;
-};
 
 export default function MobileHeader() {
   const router = useRouter();
-  const hydrated = useHydrated();
-  const auth = useAuthStore();
   const [scrolled, setScrolled] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -52,8 +43,6 @@ export default function MobileHeader() {
     }
   }, []);
 
-  if (!hydrated) return null; // prevent SSR mismatch
-
   return (
     <>
       <header
@@ -77,11 +66,15 @@ export default function MobileHeader() {
         {/* Actions */}
         <div className="flex items-center gap-2">
           {/* Search */}
-          <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSearchOpen(true)}
+          >
             <Search className="w-6 h-6 text-gray-800 dark:text-white" />
           </Button>
 
-          {/* Dark Mode */}
+          {/* Dark Mode Toggle */}
           <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
             {darkMode ? (
               <Sun className="w-6 h-6 text-yellow-400" />
@@ -91,7 +84,12 @@ export default function MobileHeader() {
           </Button>
 
           {/* Cart */}
-          <Button variant="ghost" size="icon" className="relative" onClick={() => setCartOpen(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => setCartOpen(true)}
+          >
             <ShoppingCart className="w-6 h-6 text-gray-800 dark:text-white" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
@@ -99,17 +97,6 @@ export default function MobileHeader() {
               </span>
             )}
           </Button>
-
-          {/* Login / Logout */}
-          {auth.isLoggedIn() ? (
-            <Button variant="ghost" size="icon" onClick={auth.logout}>
-              <LogOut className="w-6 h-6 text-gray-800 dark:text-white" />
-            </Button>
-          ) : (
-            <Button variant="ghost" size="icon" onClick={() => router.push("/auth/login")}>
-              <User className="w-6 h-6 text-gray-800 dark:text-white" />
-            </Button>
-          )}
         </div>
       </header>
 
