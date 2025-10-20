@@ -1,7 +1,11 @@
-"use client"; // <--- add this at the top
-
+// app/user/dashboard/page.tsx
+import React, { Suspense } from "react";
 import DashboardClient from "@/components/Section/DashboardClient";
 
-export default function Page() {
-  return <DashboardClient />;
-}
+const Page = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <DashboardClient />
+  </Suspense>
+);
+
+export default Page;
