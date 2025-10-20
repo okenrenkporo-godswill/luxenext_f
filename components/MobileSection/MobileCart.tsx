@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useCartStore } from "@/store/useCartStore";
+import { useCartStore, CartItem } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -16,17 +16,19 @@ import {
   useClearCart,
 } from "@/hook/queries";
 
+// Extend CartItem to include backend id
+type BackendCartItem = CartItem & { id?: number };
+
 interface MobileCartProps {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
 export default function MobileCart({ open, setOpen }: MobileCartProps) {
-  // ✅ Use selectors to avoid undefined functions
-const items = useCartStore((state) => state.items);
-const setCart = useCartStore((state) => state.setCart);
-const clear = useCartStore((state) => state.clear);
-
+  // ✅ Zustand selectors
+  const items = useCartStore((state) => state.items);
+  const setCart = useCartStore((state) => state.setCart);
+  const clear = useCartStore((state) => state.clear);
 
   const { data: cartData } = useCart();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn());
@@ -44,7 +46,7 @@ const clear = useCartStore((state) => state.clear);
   }, [cartData, setCart]);
 
   // Quantity handlers
-  const handleIncrease = (item: any) => {
+  const handleIncrease = (item: BackendCartItem) => {
     const newQty = (item.quantity || 0) + 1;
     if (isLoggedIn && item.id) {
       updateCartMutation.mutate({ item_id: item.id, quantity: newQty });
@@ -57,7 +59,7 @@ const clear = useCartStore((state) => state.clear);
     }
   };
 
-  const handleDecrease = (item: any) => {
+  const handleDecrease = (item: BackendCartItem) => {
     const newQty = (item.quantity || 0) - 1;
     if (newQty <= 0) return handleRemove(item);
     if (isLoggedIn && item.id) {
@@ -72,7 +74,7 @@ const clear = useCartStore((state) => state.clear);
   };
 
   // Remove single item
-  const handleRemove = (item: any) => {
+  const handleRemove = (item: BackendCartItem) => {
     if (isLoggedIn && item.id) {
       removeCartMutation.mutate(item.id, {
         onSuccess: () => toast.success("Item removed"),
