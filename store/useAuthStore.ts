@@ -1,3 +1,4 @@
+// store/useAuthStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { CartItem, useCartStore } from "./useCartStore";
@@ -15,10 +16,11 @@ export interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
-  isLoading: boolean;
   login: (user: User, token: string, serverCart?: CartItem[]) => void;
   logout: () => void;
   isLoggedIn: () => boolean;
+  hydrated: boolean; // track hydration
+  setHydrated: (value: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -26,7 +28,8 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
-      isLoading: false,
+      hydrated: false,
+      setHydrated: (value: boolean) => set({ hydrated: value }),
 
       login: (user, token, serverCart) => {
         set({ user, token });
@@ -45,9 +48,13 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: () => !!get().token,
     }),
     {
-      name: "auth-storage", // localStorage key
-      storage: localStorageAdapter, // custom localStorage adapter
-      partialize: (state) => ({ user: state.user, token: state.token }), // only persist user & token
+      name: "auth-storage",
+      storage: localStorageAdapter,
+      partialize: (state) => ({ user: state.user, token: state.token }),
+      onRehydrateStorage: () => (state) => {
+        // called after hydration
+        if (state) state.setHydrated(true);
+      },
     }
   )
 );
