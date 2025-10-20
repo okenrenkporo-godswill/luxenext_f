@@ -13,11 +13,18 @@ interface MobileAccountProps {
 }
 
 export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
-  const token = useAuthStore((state) => state.token);
-  const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
+  // Combined reactive subscription
+  const { token, user, hydrated, logout } = useAuthStore((state) => ({
+    token: state.token,
+    user: state.user,
+    hydrated: state.hydrated,
+    logout: state.logout,
+  }));
 
   const isLoggedIn = !!token;
+
+  // Prevent flash before hydration
+  if (!hydrated) return <p className="p-4 text-white">Loading account...</p>;
 
   const handleLogout = async () => {
     try {
@@ -39,6 +46,7 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
         className="w-80 p-4 flex flex-col space-y-4 left-0 top-0 fixed h-full shadow-lg 
         bg-gradient-to-b from-green-900 to-white text-white"
       >
+        {/* Drawer Header */}
         <DrawerHeader className="flex items-center justify-between">
           <DrawerTitle className="text-white font-bold text-2xl">Account</DrawerTitle>
           <button onClick={() => setOpen(false)} className="text-white hover:text-gray-300">
@@ -46,13 +54,16 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
           </button>
         </DrawerHeader>
 
+        {/* Logged In */}
         {isLoggedIn ? (
           <>
+            {/* User Info */}
             <div className="border border-green-700 p-3 rounded-lg shadow-sm bg-green-800/80">
               <p className="font-semibold">{user?.username || "User"}</p>
               <p className="text-sm text-gray-200">{user?.email || "user@email.com"}</p>
             </div>
 
+            {/* Menu List */}
             <div className="flex flex-col space-y-2">
               <Link href="/wishlist">
                 <Button variant="ghost" className="w-full justify-start text-white hover:bg-green-700">
@@ -72,6 +83,7 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
                 </Button>
               </Link>
 
+              {/* Logout */}
               <button
                 onClick={handleLogout}
                 className="flex items-center w-full justify-start text-white hover:bg-red-600 rounded-lg px-3 py-2 transition-colors"
@@ -81,6 +93,7 @@ export default function MobileAccount({ open, setOpen }: MobileAccountProps) {
             </div>
           </>
         ) : (
+          /* Logged Out */
           <>
             <p className="text-lg text-black font-semibold">
               Welcome! Please log in or register to access your account.
