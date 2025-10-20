@@ -1,15 +1,15 @@
+// components/Section/DashboardClient.tsx
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import HomePage from "@/components/Section/HomePage";
 import MobileHome from "@/components/MobileSection/MobileHome";
 import { useIsMobile } from "@/lib/mobile";
 
-export const DashboardClient = () => {
+const DashboardClient = () => {
   const searchParams = useSearchParams();
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
-
   const mobile = useIsMobile();
 
   useEffect(() => {

@@ -1,7 +1,10 @@
-"use client"; // Make this a Client Component
+// app/user/dashboard/page.tsx
+"use client";
 
-import React from "react";
 import DashboardClient from "@/components/Section/DashboardClient";
+import React from "react";
+
+// Force this page to always render dynamically
 export const dynamic = "force-dynamic";
 
 const Page = () => {
