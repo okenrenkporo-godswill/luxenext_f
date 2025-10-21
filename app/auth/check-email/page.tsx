@@ -3,17 +3,33 @@
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/useAuthStore";
+
+import { useState } from "react";
+import apiClient from "@/lib/axios";
 
 export default function CheckEmailPage() {
+  const user = useAuthStore((state) => state.user);
+  const [loading, setLoading] = useState(false);
+
   const handleResend = async () => {
-    // Example resend logic
-    const res = await fetch("/api/auth/resend-verification", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "user@example.com" }), // TODO: replace with actual user email
-    });
-    const data = await res.json();
-    alert(data.message || "Verification email resent!");
+    if (!user?.email) {
+      alert("User email not found. Please login again.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await apiClient.post("/api/auth/resend-verification", {
+        email: user.email,
+      });
+      alert(res.data.message || "Verification email resent!");
+    } catch (err: any) {
+      console.error("Resend email error:", err);
+      alert(err.response?.data?.message || "Failed to resend verification email.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,8 +52,7 @@ export default function CheckEmailPage() {
 
         {/* Message */}
         <p className="text-gray-600">
-          We’ve sent a verification link to your email.  
-          Click the link inside to activate your account.
+          We’ve sent a verification link to <b>{user?.email}</b>. Click the link inside to activate your account.
         </p>
 
         {/* Extra info */}
@@ -48,9 +63,10 @@ export default function CheckEmailPage() {
         {/* Resend button */}
         <Button
           onClick={handleResend}
+          disabled={loading}
           className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-black rounded-xl shadow-md"
         >
-          Resend Verification Email
+          {loading ? "Resending..." : "Resend Verification Email"}
         </Button>
       </motion.div>
     </div>
