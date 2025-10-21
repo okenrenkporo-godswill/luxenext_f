@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import qs from "querystring";
+
 import { isAxiosError } from "axios";
 import apiClient from "@/lib/axios";
 
@@ -7,11 +7,11 @@ export async function POST(request: NextRequest) {
   const { email, username, password } = await request.json();
 
   try {
-    const formData = qs.stringify({ email, username, password });
-
-    const response = await apiClient.post("/auth/register", formData, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
+    const response = await apiClient.post(
+      "/auth/register",
+      { email, username, password },
+   
+    );
 
     const data = response.data;
 
@@ -25,10 +25,9 @@ export async function POST(request: NextRequest) {
 
     if (isAxiosError(error)) {
       status = error.response?.status || 500;
-      message = error.response?.data?.detail || error.response?.data?.message || error.message;
-      console.error(`Register failed [${status}]:`, error.response?.data);
-    } else if (error instanceof Error) {
-      message = error.message;
+      message = error.response?.data?.detail || error.message;
+      console.error(`Register failed [${status}]:`, message);
+    } else {
       console.error("Unexpected error during register:", error);
     }
 
