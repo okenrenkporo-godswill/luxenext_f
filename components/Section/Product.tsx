@@ -1,147 +1,152 @@
 "use client";
 
 import { useState } from "react";
-import { useProducts, useAddCartItem, useAddWishlistItem } from "@/hook/queries";
-import { useCartStore } from "@/store/useCartStore";
-import { useAuthStore } from "@/store/useAuthStore";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useProducts, useAddWishlistItem } from "@/hook/queries";
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
-import { toast } from "sonner";
+import Link from "next/link";
+import { Button } from "../ui/button";
 import { Heart } from "lucide-react";
+import { toast } from "sonner";
+import { useAuthStore } from "@/store/useAuthStore";
 
-export default function ProductsList() {
+export default function MobileProductList() {
   const { data: products = [], isLoading, error } = useProducts();
-  const ITEMS_PER_PAGE = 12;
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const addWishlistMutation = useAddWishlistItem();
+  const { user, isLoggedIn } = useAuthStore();
+  const ITEMS_PER_PAGE = 16;
+  const [page, setPage] = useState(0);
+  const [wishlistLoading, setWishlistLoading] = useState<number | null>(null);
 
-  const addItem = useCartStore((state) => state.addItem);
-  const removeItem = useCartStore((state) => state.removeItem);
-  const addCartMutation = useAddCartItem();
-  const addWishlistMutation = useAddWishlistItem(); // 👈 new
-  const { isLoggedIn, user } = useAuthStore();
+  if (isLoading) return <p className="text-center mt-4">Loading products...</p>;
+  if (error) return <p className="text-center mt-4">Failed to load products.</p>;
+  if (products.length === 0)
+    return <p className="text-center mt-4">No products found.</p>;
 
-  if (isLoading) return <p>Loading products...</p>;
-  if (error) return <p>Failed to load products.</p>;
-  if (products.length === 0) return <p>No products available.</p>;
+  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+  const startIndex = page * ITEMS_PER_PAGE;
+  const visibleProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const visibleProducts = products.slice(0, visibleCount);
-
-  const handleAddToWishlist = (product: any) => {
+  // ✅ Handle Add to Wishlist
+  // ✅ Handle Add to Wishlist
+  const handleAddToWishlist = (productId: number, productName: string) => {
     if (!isLoggedIn || !user) {
-      toast.error("Please log in to add items to your wishlist ❤️");
+      toast.error("Please log in to add items to your wishlist.");
       return;
     }
 
+    setWishlistLoading(productId);
+
     addWishlistMutation.mutate(
-      { user_id: user.id, product_id: product.id },
+      { user_id: user.id, product_id: productId }, // ✅ include user_id
       {
-        onSuccess: () => toast.success(`${product.name} added to wishlist 💖`),
-        onError: () => toast.error("Failed to add to wishlist 😢"),
+        onSuccess: () => {
+          toast.success(`${productName} added to wishlist`);
+          setWishlistLoading(null);
+        },
+        onError: (err: any) => {
+          const message =
+            err?.response?.data?.detail || "Failed to add to wishlist";
+          toast.error(message);
+          setWishlistLoading(null);
+        },
       }
     );
   };
 
-  const handleViewMore = () => {
-    setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
-  };
-
-  const handleAddToCart = (product: any) => {
-    // (existing logic unchanged)
-  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Section Header */}
-      <div className="flex items-center mb-8">
-        <div className="w-1.5 h-8 bg-red-600 rounded-md mr-3"></div>
-        <div>
-          <h2 className="text-sm font-bold text-red-500">Our Products</h2>
-          <p className="text-2xl font-bold">Explore our products</p>
-          <p className="text-gray-500 text-sm mt-1">
-            👆 Tap a product name to view details or ❤️ to save for later.
-          </p>
-        </div>
+    <div className="px-3 mt-4">
+      {/* Section Title */}
+      <div className="flex items-center mb-4">
+        <span className="w-2 h-6 bg-red-700 rounded mr-2"></span>
+        <h2 className="text-black font-bold text-lg">Product</h2>
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-3">
         <AnimatePresence>
           {visibleProducts.map((product) => (
             <motion.div
               key={product.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              whileHover={{ scale: 1.05 }}
+              className="relative flex flex-col items-center group"
             >
-              <Card className="flex flex-col justify-between rounded-xl shadow-md border bg-white overflow-hidden transition duration-500 hover:shadow-2xl">
-                {/* Image Section */}
-                <Link href={`/products/${product.id}`}>
-                  <div className="w-full h-36 flex items-center justify-center bg-white relative cursor-pointer">
-                    <motion.div whileHover={{ y: -8 }} transition={{ type: "spring", stiffness: 200 }}>
-                      <Image
-                        src={product.thumbnail_url || product.image_url || "/placeholder.png"}
-                        alt={product.name || "Product"}
-                        width={150}
-                        height={150}
-                        className="object-contain transition-transform duration-300 hover:scale-110"
-                      />
-                    </motion.div>
-                  </div>
-                </Link>
+              {/* Clickable Product Card */}
+              <Link
+                href={`/products/${product.id}`}
+                className="w-16 h-16 relative group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+              >
+                <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200 relative">
+                  <Image
+                    src={product.thumbnail_url || "/placeholder.png"}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
 
-                {/* Product Name */}
-                <CardHeader className="px-3 pt-2 pb-1">
-                  <Link href={`/products/${product.id}`}>
-                    <CardTitle className="text-sm font-semibold text-gray-900 truncate cursor-pointer hover:text-red-600">
-                      {product.name}
-                    </CardTitle>
-                  </Link>
-                </CardHeader>
+                {/* Heart Button */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault(); // prevent navigation on heart click
+                    handleAddToWishlist(product.id, product.name);
+                  }}
+                  disabled={wishlistLoading === product.id}
+                  className="absolute top-0 right-0 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition-colors"
+                >
+                  <Heart
+                    size={14}
+                    className={`transition-colors ${
+                      wishlistLoading === product.id
+                        ? "text-gray-400 animate-pulse"
+                        : "text-gray-500 group-hover:text-red-600"
+                    }`}
+                  />
+                </button>
+              </Link>
 
-                {/* Price */}
-                <CardContent className="px-3 pb-2">
-                  <p className="text-base font-bold text-gray-900">₦{product.price}</p>
-                </CardContent>
-
-                {/* Footer / Actions */}
-                <CardFooter className="px-3 pb-3 flex justify-between gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-gray-800 text-gray-800 hover:bg-gray-900 hover:text-white rounded-md"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    Add to Cart
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => handleAddToWishlist(product)}
-                  >
-                    <Heart className="w-4 h-4" />
-                  </Button>
-                </CardFooter>
-              </Card>
+              {/* Product Info */}
+              <p className="text-[10px] font-semibold text-center mt-1 truncate w-16">
+                {product.name.length > 12
+                  ? product.name.slice(0, 12) + "..."
+                  : product.name}
+              </p>
+              <p className="text-green-700 font-bold text-[10px] mt-0.5">
+                ₦{product.price}
+              </p>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
-      {/* View More Button */}
-      {visibleCount < products.length && (
-        <div className="mt-6 text-center">
-          <Button onClick={handleViewMore} className="bg-black text-white hover:bg-gray-800 rounded-md">
-            View All Products
-          </Button>
+      {/* Pagination */}
+      <div className="mt-6 px-4 py-4 bg-gradient-to-r from-green-900 to-gray-800 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p className="text-lg text-gray-200 flex-1 text-center sm:text-left">
+          Explore more products and exclusive deals now!
+        </p>
+
+        <div className="flex gap-2">
+          {page > 0 && (
+            <Button
+              onClick={() => setPage((prev) => prev - 1)}
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full shadow hover:bg-gray-400 transition-colors duration-300"
+            >
+              Previous
+            </Button>
+          )}
+          {page < totalPages - 1 && (
+            <Button
+              onClick={() => setPage((prev) => prev + 1)}
+              className="px-4 py-2 bg-green-700 text-white rounded-full shadow hover:bg-green-800 transition-colors duration-300"
+            >
+              View More
+            </Button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
