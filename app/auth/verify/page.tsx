@@ -25,7 +25,7 @@ export default function VerifyPage() {
     const verifyEmail = async () => {
       try {
         // 1️⃣ Verify with FastAPI
-        const res = await fetch(`https://luxenext-f.vercel.app/auth/verify?token=${token}`);
+        const res = await fetch(`https://luxenext.onrender.com/auth/verify?token=${token}`);
         const data = await res.json();
 
         if (!data.access_token || !data.user) {
