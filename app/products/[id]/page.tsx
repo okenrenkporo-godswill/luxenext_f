@@ -2,12 +2,23 @@
 
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
-import { useProduct, useProductsByCategory, useAddCartItem } from "@/hook/queries";
+import {
+  useProduct,
+  useProductsByCategory,
+  useAddCartItem,
+} from "@/hook/queries";
 import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Star, Heart, Plus, Minus, ShoppingBag, Share2 } from "lucide-react";
+import {
+  Star,
+  Heart,
+  Plus,
+  Minus,
+  ShoppingBag,
+  Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,22 +28,18 @@ export default function ProductDetailPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState(false);
+  const [showFloatingBar, setShowFloatingBar] = useState(false);
 
   const addItem = useCartStore((state) => state.addItem);
   const removeItem = useCartStore((state) => state.removeItem);
   const addCartMutation = useAddCartItem();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn());
 
-  // -------------------------
   // Fetch related products
-  // -------------------------
-  const { data: relatedProducts, isLoading: relatedLoading } = useProductsByCategory(
-    product?.category_id || ""
-  );
+  const { data: relatedProducts, isLoading: relatedLoading } =
+    useProductsByCategory(product?.category_id || "");
 
-  // -------------------------
-  // Handle Add to Cart
-  // -------------------------
+  // Add to cart
   const handleAddToCart = (product: any, quantity: number) => {
     if (!product) return;
 
@@ -45,7 +52,6 @@ export default function ProductDetailPage() {
     };
 
     if (isLoggedIn) {
-      // Optimistic UI
       const tempId = Date.now();
       addItem({ ...itemData, product_id: tempId });
 
@@ -78,9 +84,18 @@ export default function ProductDetailPage() {
     }
   };
 
-  // -------------------------
+  // Show floating Add to Cart bar when scrolled down
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) setShowFloatingBar(true);
+      else setShowFloatingBar(false);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Skeleton Loading
-  // -------------------------
   if (isLoading)
     return (
       <div className="bg-gray-50 min-h-screen animate-pulse p-4 space-y-6">
@@ -94,15 +109,6 @@ export default function ProductDetailPage() {
           <Skeleton className="h-8 w-24" />
           <Skeleton className="h-8 w-20" />
         </div>
-        <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white border rounded-xl shadow-sm p-3 space-y-2">
-              <Skeleton className="h-32 w-full rounded-lg" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ))}
-        </div>
       </div>
     );
 
@@ -111,11 +117,9 @@ export default function ProductDetailPage() {
   if (!product)
     return <p className="text-center py-10 text-red-600">Product not found</p>;
 
-  // -------------------------
   // Main Product Page
-  // -------------------------
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
+    <div className="bg-gray-50 min-h-screen pb-[10rem] sm:pb-[6rem]">
       {/* Product Image */}
       <div className="relative bg-white shadow-sm">
         <Image
@@ -179,15 +183,20 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Floating Cart Buttons */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg px-4 py-3 flex items-center justify-between gap-3">
+      {/* Floating Add to Cart Bar (appears on scroll) */}
+      <div
+        className={`fixed bottom-0 left-0 w-full bg-white border-t shadow-lg px-4 py-3 transition-all duration-500 transform ${
+          showFloatingBar
+            ? "translate-y-0 opacity-100"
+            : "translate-y-full opacity-0"
+        }`}
+      >
         <Button
           onClick={() => handleAddToCart(product, quantity)}
-          className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
+          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
         >
           <ShoppingBag size={18} /> Add to Cart
         </Button>
-       
       </div>
 
       {/* Related Section */}
@@ -211,7 +220,7 @@ export default function ProductDetailPage() {
                 <div
                   key={p.id}
                   className="bg-white border rounded-xl shadow-sm p-3 hover:shadow-md transition cursor-pointer"
-                  onClick={() => window.location.href = `/products/${p.id}`}
+                  onClick={() => (window.location.href = `/products/${p.id}`)}
                 >
                   <div className="h-32 w-full relative">
                     <Image
@@ -221,7 +230,9 @@ export default function ProductDetailPage() {
                       className="object-cover rounded-lg"
                     />
                   </div>
-                  <p className="text-sm mt-2 font-medium text-gray-800">{p.name}</p>
+                  <p className="text-sm mt-2 font-medium text-gray-800">
+                    {p.name}
+                  </p>
                   <p className="text-orange-600 text-sm font-semibold mt-1">
                     ₦{p.price.toLocaleString()}
                   </p>
