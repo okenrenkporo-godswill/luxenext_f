@@ -57,6 +57,12 @@ import {
   fetchTopProducts,
   SearchOptions,
   searchProducts,
+  fetchUserWishlist,
+  fetchWishlistById,
+  createWishlistItem,
+  deleteWishlistItem,
+  Wishlist,
+  WishlistCreatePayload
 } from "@/lib/api";
 
 import { toast } from "sonner";
@@ -667,3 +673,41 @@ export const useUpdateUserRole = () => {
 // ===============================
 // ⚡ GLOBAL PREFETCH HELPER
 // ===============================
+// ===============================
+// 💖 Wishlist Hooks
+// ===============================
+
+
+export const useWishlist = (user_id: number | null) => {
+  return useQuery<Wishlist[]>({
+    queryKey: ["wishlist", user_id],
+    queryFn: () => fetchUserWishlist(user_id!),
+    enabled: !!user_id,
+  });
+};
+
+export const useAddWishlistItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: WishlistCreatePayload) => createWishlistItem(data),
+    onSuccess: () => {
+      toast.success("Added to wishlist");
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+    },
+    onError: () => {
+      toast.error("Failed to add to wishlist");
+    },
+  });
+};
+
+export const useDeleteWishlistItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (wishlist_id: number) => deleteWishlistItem(wishlist_id),
+    onSuccess: () => {
+      toast.success("Removed from wishlist");
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+    },
+    onError: () => toast.error("Failed to remove item from wishlist"),
+  });
+};

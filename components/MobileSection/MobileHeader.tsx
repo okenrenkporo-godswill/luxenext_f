@@ -59,7 +59,7 @@ export default function MobileHeader() {
           onClick={() => router.push("/mobile")}
         >
           <h1 className="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-yellow-800 dark:from-green-400 dark:to-yellow-600">
-            LuxeNest
+            LuxeNext
           </h1>
         </div>
 
