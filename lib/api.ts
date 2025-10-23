@@ -485,7 +485,39 @@ export const updateUserRole = async (user_id: number, new_role: "user" | "admin"
   return res.data.data;
 };
 
+export interface Wishlist {
+  id: number;
+  user_id: number;
+  product_id: number;
+  product: Product;
+  created_at: string;
+}
 
+export interface WishlistCreatePayload {
+  user_id: number;
+  product_id: number;
+}
 
+// Get all wishlist items for a user
+export const fetchUserWishlist = async (user_id: number): Promise<Wishlist[]> => {
+  const res = await apiClient.get<ApiResponse<Wishlist[]>>(`/wishlist/user/${user_id}`);
+  return res.data.data;
+};
 
+// Get a single wishlist item by ID
+export const fetchWishlistById = async (wishlist_id: number): Promise<Wishlist> => {
+  const res = await apiClient.get<ApiResponse<Wishlist>>(`/wishlist/${wishlist_id}`);
+  return res.data.data;
+};
 
+// Add item to wishlist
+export const createWishlistItem = async (data: WishlistCreatePayload): Promise<Wishlist> => {
+  const res = await apiClient.post<ApiResponse<Wishlist>>(`/wishlist/`, data);
+  return res.data.data;
+};
+
+// Delete wishlist item
+export const deleteWishlistItem = async (wishlist_id: number): Promise<{ message: string }> => {
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/wishlist/${wishlist_id}`);
+  return res.data.data;
+};
