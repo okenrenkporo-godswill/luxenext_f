@@ -2,13 +2,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 
 
-import { 
-  fetchProducts, 
-  fetchCategories, 
-  fetchProductById, 
+import {
+  fetchProducts,
+  fetchCategories,
+  fetchProductById,
   fetchProductsByCategoryId, // 👈 import this
-  Product, 
-  Category, 
+  Product,
+  Category,
   getCart,
   addCartItem,
   updateCartItem,
@@ -40,7 +40,7 @@ import {
   fetchOrderById, OrderResponse,
   OrderHistoryItem,
   fetchUserOrders,
-   fetchAllOrders,
+  fetchAllOrders,
   fetchAdminOrderById,
   updateOrderStatus,
   deleteOrder,
@@ -241,11 +241,12 @@ export const useDeleteCategory = () => {
 // ===============================
 
 export const useCart = () => {
+  const { token } = useAuthStore();
   return useQuery({
     queryKey: ["cart"],
     queryFn: async () => {
       try {
-        const data = await getCart(); 
+        const data = await getCart();
         // Always return something safe for guests
         return data ?? { items: [] };
       } catch (err: any) {
@@ -256,6 +257,7 @@ export const useCart = () => {
         throw err; // re-throw other errors
       }
     },
+    enabled: !!token,         // ✅ Only fetch if logged in
     staleTime: 1000 * 60 * 5, // optional: cache for 5 minutes
     retry: false,             // don’t retry by default
     initialData: { items: [] }, // fallback for server render or guests
@@ -269,7 +271,7 @@ export const useAddCartItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (item: CartItemPayload) => addCartItem(item),
-    onSuccess: () => queryClient.invalidateQueries({queryKey:["cart"]}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
   });
 };
 
@@ -278,7 +280,7 @@ export const useUpdateCartItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ item_id, quantity }: { item_id: number; quantity: number }) => updateCartItem(item_id, quantity),
-    onSuccess: () => queryClient.invalidateQueries({queryKey:["cart"]}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
   });
 };
 
@@ -287,7 +289,7 @@ export const useRemoveCartItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (item_id: number) => removeCartItem(item_id),
-    onSuccess: () => queryClient.invalidateQueries({queryKey:["cart"]}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
   });
 };
 
@@ -670,12 +672,6 @@ export const useUpdateUserRole = () => {
 
 
 
-// ===============================
-// ⚡ GLOBAL PREFETCH HELPER
-// ===============================
-// ===============================
-// 💖 Wishlist Hooks
-// ===============================
 
 
 export const useWishlist = (user_id: number | null) => {

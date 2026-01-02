@@ -74,9 +74,9 @@ export default function RegisterCard() {
         return;
       }
 
-      // Otherwise show success message and redirect to check-email page
-      toast.success(data.message || "Registration successful! Check your email for verification link.");
-      setTimeout(() => router.replace("/auth/check-email"), 1000);
+      // Otherwise show success message and redirect to verify page
+      toast.success(data.message || "Registration successful! Please verify your email.");
+      setTimeout(() => router.replace(`/auth/verify?email=${encodeURIComponent(values.email)}`), 1000);
 
     } catch (err: any) {
       console.error("Register error:", err);

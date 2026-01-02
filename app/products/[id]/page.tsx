@@ -10,11 +10,15 @@ import { useState, useEffect } from "react";
 import { Star, Heart, Plus, Minus, ShoppingBag, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
+
+
+
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const { data: product, isLoading, error } = useProduct(id as string);
-
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState(false);
 
@@ -23,16 +27,11 @@ export default function ProductDetailPage() {
   const addCartMutation = useAddCartItem();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn());
 
-  // -------------------------
-  // Fetch related products
-  // -------------------------
   const { data: relatedProducts, isLoading: relatedLoading } = useProductsByCategory(
     product?.category_id || ""
   );
 
-  // -------------------------
-  // Handle Add to Cart
-  // -------------------------
+  
   const handleAddToCart = (product: any, quantity: number) => {
     if (!product) return;
 
@@ -211,7 +210,8 @@ export default function ProductDetailPage() {
                 <div
                   key={p.id}
                   className="bg-white border rounded-xl shadow-sm p-3 hover:shadow-md transition cursor-pointer"
-                  onClick={() => window.location.href = `/products/${p.id}`}
+                  onClick={() => router.push(`/products/${p.id}`)}
+
                 >
                   <div className="h-32 w-full relative">
                     <Image
