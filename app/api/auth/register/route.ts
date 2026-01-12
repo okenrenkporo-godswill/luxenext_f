@@ -10,15 +10,30 @@ export async function POST(request: NextRequest) {
     const response = await apiClient.post(
       "/auth/register",
       { email, username, password },
-   
+
     );
 
     const data = response.data;
+    const { access_token, user } = data;
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
-      message: data.message || "Registration successful, check your email",
+      message: data.message || "Registration successful",
+      user: user || null,
+      token: access_token || null,
     });
+
+    if (access_token) {
+      res.cookies.set("Token", access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // 7 days for register
+      });
+    }
+
+    return res;
   } catch (error: unknown) {
     let message = "Registration failed";
     let status = 500;

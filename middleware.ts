@@ -17,8 +17,13 @@ const VERIFIED_ONLY = ["/user/checkout", "/user/settings"];
 function decodeJwt(token: string): any | null {
   try {
     const payload = token.split(".")[1];
-    return JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
-  } catch {
+    if (!payload) return null;
+
+    // Use atob for Edge Runtime compatibility
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = atob(base64);
+    return JSON.parse(jsonPayload);
+  } catch (error) {
     return null;
   }
 }
@@ -39,11 +44,14 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 2️⃣ Redirect logged-in users away from public pages
-  if (decoded && isPublic) {
+  // 2️⃣ Redirect logged-in users away from public pages or root
+  if (decoded && (isPublic || pathname === "/")) {
     const dashboardUrl = req.nextUrl.clone();
     dashboardUrl.pathname = DASHBOARD_ROUTES[decoded.role] || "/user/dashboard";
-    return NextResponse.redirect(dashboardUrl);
+    // Avoid infinite loop if dashboard is accidentally marked as public (shouldn't happen here)
+    if (pathname !== dashboardUrl.pathname) {
+      return NextResponse.redirect(dashboardUrl);
+    }
   }
 
   // 3️⃣ Role-based access
