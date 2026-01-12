@@ -15,11 +15,14 @@ import {
 } from "lucide-react";
 import SearchBar from "./Search";
 import CartButton from "./CartButton"; // ✅ Imported new Cart component
+import Profile from "./Profile";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { user } = useAuthStore();
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -51,31 +54,37 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <SearchBar />
 
-            {/* Account */}
-            <Link href="/login">
-              <Button className="bg-white text-black border rounded-full cursor-pointer hover:bg-gray-100 flex items-center gap-1">
-                <UserIcon className="w-5 h-5 text-gray-700" />
-                Account
-              </Button>
-            </Link>
+            {/* Account / Profile */}
+            {user ? (
+              <Profile darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button className="bg-white text-black border rounded-full cursor-pointer hover:bg-gray-100 flex items-center gap-1">
+                    <UserIcon className="w-5 h-5 text-gray-700" />
+                    Account
+                  </Button>
+                </Link>
+
+                {/* Notifications */}
+                <BellIcon className="w-5 h-5 text-gray-700 cursor-pointer" />
+
+                {/* Dark Mode */}
+                <button
+                  onClick={toggleDarkMode}
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
+                  {darkMode ? (
+                    <SunIcon className="w-5 h-5 text-yellow-400" />
+                  ) : (
+                    <MoonIcon className="w-5 h-5 text-gray-700" />
+                  )}
+                </button>
+              </>
+            )}
 
             {/* ✅ Cart Button (Reusable Component) */}
             <CartButton />
-
-            {/* Notifications */}
-            <BellIcon className="w-5 h-5 text-gray-700 cursor-pointer" />
-
-            {/* Dark Mode */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-            >
-              {darkMode ? (
-                <SunIcon className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <MoonIcon className="w-5 h-5 text-gray-700" />
-              )}
-            </button>
 
             {/* Mobile Menu Toggle */}
             <button

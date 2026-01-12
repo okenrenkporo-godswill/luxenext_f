@@ -8,9 +8,12 @@ import clsx from "clsx";
 import MobileCart from "./MobileCart";
 import MobileSearch from "./MobileSearch";
 import { useCartStore } from "@/store/useCartStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { User, LogIn } from "lucide-react";
 
 export default function MobileHeader() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [scrolled, setScrolled] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -65,6 +68,19 @@ export default function MobileHeader() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* Account/Profile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push(user ? "/user/dashboard" : "/login")}
+          >
+            {user ? (
+              <User className="w-6 h-6 text-indigo-600" />
+            ) : (
+              <LogIn className="w-6 h-6 text-gray-800 dark:text-white" />
+            )}
+          </Button>
+
           {/* Search */}
           <Button
             variant="ghost"

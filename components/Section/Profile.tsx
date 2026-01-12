@@ -70,24 +70,6 @@ export default function Profile({
       transition={{ type: "spring", stiffness: 120, damping: 20 }}
       className="flex items-center gap-4"
     >
-      <SearchBar />
-      <HeartIcon className="w-6 h-6 text-gray-700 dark:text-gray-200 cursor-pointer hover:text-indigo-500 transition" />
-      <BellIcon className="w-6 h-6 text-gray-700 dark:text-gray-200 cursor-pointer hover:text-indigo-500 transition" />
-      <CartButton />
-
-      {toggleDarkMode && (
-        <button
-          onClick={toggleDarkMode}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-        >
-          {darkMode ? (
-            <SunIcon className="w-5 h-5 text-yellow-400" />
-          ) : (
-            <MoonIcon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-          )}
-        </button>
-      )}
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center font-semibold hover:ring-2 hover:ring-indigo-300 transition">
