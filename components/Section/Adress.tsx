@@ -13,10 +13,10 @@ interface StepAddressProps {
 }
 
 export default function StepAddress({ onNext }: StepAddressProps) {
-  const { data: addresses, isLoading, isError, error } = useAddresses();
+  const { _hasHydrated, token, logout } = useAuthStore();
+  const { data: addresses, isLoading, isError, error } = useAddresses({ enabled: _hasHydrated && !!token });
   const { mutate: createAddress, isPending } = useCreateAddress();
   const { mutate: deleteAddress, isPending: deleting } = useDeleteAddress();
-  const { logout } = useAuthStore();
   const router = useRouter();
 
   const [showForm, setShowForm] = useState(false);
@@ -29,6 +29,16 @@ export default function StepAddress({ onNext }: StepAddressProps) {
     postal_code: "",
     phone_number: "",
   });
+
+  // Conditionally show loading if not hydrated yet to prevent firing requests with null tokens
+  if (!_hasHydrated || (token && isLoading)) {
+    return (
+      <div className="flex flex-col justify-center items-center h-48 gap-3">
+        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
+        <p className="text-sm text-gray-500 font-medium">Restoring session...</p>
+      </div>
+    );
+  }
 
   // Load selected address from localStorage if exists
   useEffect(() => {
