@@ -12,9 +12,16 @@ import AccountDropdown from "../Section/AccountDropdown";
 import SearchBar from "../Section/Search";
 import CartButton from "../Section/CartButton";
 
+import MobileCart from "./MobileCart";
+
 export default function MobileHeader() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const cartCount = useCartStore((state) =>
+    state.items.reduce((acc, item) => acc + item.quantity, 0)
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -41,7 +48,19 @@ export default function MobileHeader() {
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
           <AccountDropdown />
-          <CartButton />
+          
+          {/* Custom Mobile Cart Button */}
+          <button 
+            onClick={() => setCartOpen(true)}
+            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <ShoppingCart className="w-6 h-6 text-gray-700 dark:text-gray-200" />
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -49,6 +68,9 @@ export default function MobileHeader() {
       <div className="px-4 pb-3">
         <SearchBar />
       </div>
+
+      {/* Cart Drawer */}
+      <MobileCart open={cartOpen} setOpen={setCartOpen} />
     </header>
   );
 }

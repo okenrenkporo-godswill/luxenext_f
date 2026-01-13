@@ -6,8 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { X, Heart, Trash2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { X, Heart, Trash2, Package } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCart,
@@ -15,6 +14,12 @@ import {
   useRemoveCartItem,
   useClearCart,
 } from "@/hook/queries";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 // Backend cart item may include `id`
 type BackendCartItem = CartItem & { id?: number };
@@ -93,141 +98,141 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
     }
   };
 
-  const toggleWishlist = (product_id: number) =>
-    setWishlist((prev) =>
-      prev.includes(product_id)
-        ? prev.filter((id) => id !== product_id)
-        : [...prev, product_id]
-    );
-
   const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
   const shipping = subtotal > 0 ? 5.99 : 0;
   const total = subtotal + shipping;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setOpen(false)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-          <motion.div
-            className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl p-4 flex flex-col z-50"
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "tween", duration: 0.3 }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Cart</h2>
-              <Button variant="ghost" onClick={() => setOpen(false)}>
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerContent className="max-h-[85vh] p-0 flex flex-col bg-white dark:bg-gray-900 border-t-2 rounded-t-3xl">
+        <DrawerHeader className="border-b px-4 py-3">
+          <div className="flex items-center justify-between">
+            <DrawerTitle className="text-xl font-bold flex items-center gap-2">
+              My Shopping Cart
+              <span className="text-sm font-normal text-gray-500">
+                ({items.length} items)
+              </span>
+            </DrawerTitle>
+            <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="rounded-full">
+               <X className="w-5 h-5 text-gray-500" />
+            </Button>
+          </div>
+        </DrawerHeader>
 
-            {!items.length ? (
-              <p className="text-center mt-10">Your cart is empty</p>
-            ) : (
-              <div className="flex-1 overflow-y-auto space-y-4">
-                {items.map((item) => (
-                  <div
-                    key={item.product_id}
-                    className="flex items-center gap-3 border-b p-2 rounded-lg relative hover:bg-gray-50"
-                  >
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+          {!items.length ? (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Package className="w-10 h-10" />
+               </div>
+               <p className="text-lg font-medium">Your cart is empty</p>
+               <Button variant="link" onClick={() => setOpen(false)} className="text-green-600 mt-2">
+                  Start shopping now
+               </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div
+                  key={item.product_id}
+                  className="flex gap-4 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50 group hover:bg-gray-100 transition-colors"
+                >
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
                     <Image
                       src={item.image || "/placeholder.png"}
                       alt={item.name}
-                      width={60}
-                      height={60}
-                      className="rounded-lg"
+                      fill
+                      className="object-cover"
                     />
-                    <div className="flex-1 flex flex-col justify-between h-full">
-                      <p className="font-semibold">{item.name}</p>
-                      <p className="text-gray-600">${item.price.toFixed(2)}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDecrease(item)}
-                        >
-                          -
-                        </Button>
-                        <span>{item.quantity}</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleIncrease(item)}
-                        >
-                          +
-                        </Button>
-                      </div>
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col min-w-0">
+                    <div className="flex justify-between items-start gap-1">
+                       <h3 className="font-semibold text-gray-800 dark:text-gray-100 truncate pr-2">
+                         {item.name}
+                       </h3>
+                       <p className="font-bold text-gray-900 dark:text-white flex-shrink-0">
+                         ₦{(item.price * item.quantity).toLocaleString()}
+                       </p>
                     </div>
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => toggleWishlist(item.product_id)}
-                      >
-                        <Heart
-                          className={`w-4 h-4 ${
-                            wishlist.includes(item.product_id)
-                              ? "text-red-500"
-                              : "text-gray-400"
-                          }`}
-                        />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleRemove(item)}
-                      >
-                        <Trash2 className="w-4 h-4 text-gray-600" />
-                      </Button>
+
+                    <div className="mt-auto flex items-center justify-between">
+                       <div className="flex items-center bg-white dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 px-1 py-0.5 shadow-sm">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="w-7 h-7 rounded-full text-indigo-600"
+                            onClick={() => handleDecrease(item)}
+                          >
+                            -
+                          </Button>
+                          <span className="w-8 text-center font-bold text-sm">{item.quantity}</span>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="w-7 h-7 rounded-full text-indigo-600"
+                            onClick={() => handleIncrease(item)}
+                          >
+                            +
+                          </Button>
+                       </div>
+
+                       <div className="flex items-center gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="w-8 h-8 text-red-500 hover:bg-red-50"
+                            onClick={() => handleRemove(item)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-            {items.length > 0 && (
-              <div className="mt-4 border-t pt-4">
-                <div className="flex justify-between mb-2">
-                  <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span>Shipping:</span>
-                  <span>${shipping.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total:</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
-                <Button
-                  className="w-full mt-4"
+        {items.length > 0 && (
+          <div className="p-5 bg-white dark:bg-gray-900 border-t border-gray-100 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between text-sm text-gray-600 py-1">
+                <span>Subtotal</span>
+                <span className="font-medium text-gray-900">₦{subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm text-gray-600 py-1 border-b pb-2 border-gray-50">
+                <span>Shipping Fee</span>
+                <span className="font-medium text-gray-900">₦{shipping.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between pt-2">
+                <span className="text-lg font-bold text-gray-800">Total Amount</span>
+                <span className="text-xl font-extrabold text-green-700">₦{total.toLocaleString()}</span>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-4">
+               <Button
+                  variant="outline"
+                  className="flex-1 border-red-200 text-red-500 hover:bg-red-50"
+                  onClick={handleClear}
+               >
+                  Clear Cart
+               </Button>
+               <Button
+                  className="flex-[2] bg-green-600 hover:bg-green-700 text-white font-bold h-12 rounded-xl text-lg shadow-lg active:scale-95 transition-transform"
                   onClick={() => {
                     router.push("/checkout");
                     setOpen(false);
                   }}
                 >
-                  Checkout
+                  CHECKOUT
                 </Button>
-                <Button
-                  variant="destructive"
-                  className="w-full mt-2"
-                  onClick={handleClear}
-                >
-                  Clear Cart
-                </Button>
-              </div>
-            )}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+            </div>
+          </div>
+        )}
+      </DrawerContent>
+    </Drawer>
   );
 }

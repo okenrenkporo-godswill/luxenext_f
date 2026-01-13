@@ -5,12 +5,10 @@ import HeroImage from "./HeroImage";
 import MobileCategories from "./MobileCategories";
 import MobileTopDeals from "./MobileTopDeals";
 import Message from "../Section/Message";
-import MobileNav from "./MobileNav";
 import MobileProductList from "./MobileProduct";
-
 export default function MobileHome() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 pb-20"> {/* pb-20 ensures space for MobileNav */}
+    <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero Section */}
       <HeroImage />
 
@@ -24,14 +22,10 @@ export default function MobileHome() {
       <section className="mt-6 px-3">
         <Message />
       </section>
-         <section className="mt-6 px-3">
-       <MobileProductList/>
+      
+      <section className="mt-6 px-3">
+        <MobileProductList/>
       </section>
-
-      {/* Mobile Navigation */}
-      <div className="fixed bottom-0 w-full bg-white shadow-inner z-50">
-        <MobileNav />
-      </div>
     </div>
   );
 }
