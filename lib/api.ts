@@ -115,17 +115,17 @@ export async function fetchCategories(): Promise<Category[]> {
 }
 
 export const createCategory = async (data: { name: string; description?: string }) => {
-  const res = await apiClient.post<ApiResponse<Category>>("/categories", data);
+  const res = await apiClient.post<ApiResponse<Category>>("/categories/", data);
   return res.data.data;
 };
 
 export const updateCategory = async (id: number, data: { name?: string; description?: string }) => {
-  const res = await apiClient.put<ApiResponse<Category>>(`/categories/${id}`, data);
+  const res = await apiClient.put<ApiResponse<Category>>(`/categories/${id}/`, data);
   return res.data.data;
 };
 
 export const deleteCategory = async (id: number) => {
-  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/categories/${id}`);
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/categories/${id}/`);
   return res.data.data;
 };
 
@@ -166,22 +166,22 @@ export const getCart = async () => {
 };
 
 export const addCartItem = async (item: CartItemPayload) => {
-  const res = await apiClient.post("/cart/items", item);
+  const res = await apiClient.post("/cart/items/", item);
   return res.data.data;
 };
 
 export const updateCartItem = async (item_id: number, quantity: number) => {
-  const res = await apiClient.put(`/cart/items/${item_id}`, { quantity });
+  const res = await apiClient.put(`/cart/items/${item_id}/`, { quantity });
   return res.data.data;
 };
 
 export const removeCartItem = async (item_id: number) => {
-  const res = await apiClient.delete(`/cart/items/${item_id}`);
+  const res = await apiClient.delete(`/cart/items/${item_id}/`);
   return res.data.data;
 };
 
 export const clearCart = async () => {
-  const res = await apiClient.delete("/cart/clear");
+  const res = await apiClient.delete("/cart/clear/");
   return res.data.data;
 };
 // ===============================
@@ -214,7 +214,7 @@ export interface CheckoutResponse {
 }
 
 export const checkoutCart = async (data: CheckoutPayload): Promise<CheckoutResponse> => {
-  const res = await apiClient.post<ApiResponse<CheckoutResponse>>("/orders/checkout", data);
+  const res = await apiClient.post<ApiResponse<CheckoutResponse>>("/orders/checkout/", data);
   return res.data.data;
 };
 
@@ -241,13 +241,16 @@ export interface AddressPayload {
   phone_number: string;
 }
 
-export const fetchAddresses = async (): Promise<Address[]> => {
-  const res = await apiClient.get<ApiResponse<Address[]>>("/addresses/");
+export const fetchAddresses = async (tokenOverride?: string): Promise<Address[]> => {
+  const config = tokenOverride
+    ? { headers: { Authorization: `Bearer ${tokenOverride}` } }
+    : {};
+  const res = await apiClient.get<ApiResponse<Address[]>>("/addresses/", config);
   return res.data.data;
 };
 
 export const fetchAddressById = async (address_id: number): Promise<Address> => {
-  const res = await apiClient.get<ApiResponse<Address>>(`/addresses/${address_id}`);
+  const res = await apiClient.get<ApiResponse<Address>>(`/addresses/${address_id}/`);
   return res.data.data;
 };
 
@@ -285,12 +288,12 @@ export const fetchPaymentMethods = async (): Promise<PaymentMethod[]> => {
 };
 
 export const confirmManualPayment = async (order_id: number) => {
-  const res = await apiClient.post(`/payment/orders/${order_id}/confirm-payment`);
+  const res = await apiClient.post(`/payment/orders/${order_id}/confirm-payment/`);
   return res.data.data;
 };
 
 export const rejectManualPayment = async (order_id: number, reason: string) => {
-  const res = await apiClient.post(`/payment/orders/${order_id}/reject-payment`, { reason });
+  const res = await apiClient.post(`/payment/orders/${order_id}/reject-payment/`, { reason });
   return res.data.data;
 };
 
@@ -344,8 +347,11 @@ export interface OrderHistoryItem {
   items: OrderItem[];
 }
 
-export const fetchUserOrders = async (): Promise<OrderHistoryItem[]> => {
-  const res = await apiClient.get<ApiResponse<OrderHistoryItem[]>>("/orders/user/");
+export const fetchUserOrders = async (tokenOverride?: string): Promise<OrderHistoryItem[]> => {
+  const config = tokenOverride
+    ? { headers: { Authorization: `Bearer ${tokenOverride}` } }
+    : {};
+  const res = await apiClient.get<ApiResponse<OrderHistoryItem[]>>("/orders/user/", config);
   return res.data.data;
 };
 
@@ -383,28 +389,28 @@ export interface UpdateOrderStatusPayload {
 }
 
 export const fetchAllOrders = async (): Promise<AdminOrderItem[]> => {
-  const res = await apiClient.get<ApiResponse<AdminOrderItem[]>>("/orders");
+  const res = await apiClient.get<ApiResponse<AdminOrderItem[]>>("/orders/");
   return res.data.data;
 };
 
 export const fetchAdminOrderById = async (order_id: number): Promise<AdminOrderItem> => {
-  const res = await apiClient.get<ApiResponse<AdminOrderItem>>(`/orders/${order_id}`);
+  const res = await apiClient.get<ApiResponse<AdminOrderItem>>(`/orders/${order_id}/`);
   return res.data.data;
 };
 
 export const updateOrderStatus = async (order_id: number, data: UpdateOrderStatusPayload): Promise<AdminOrderItem> => {
-  const res = await apiClient.put<ApiResponse<AdminOrderItem>>(`/orders/${order_id}/status`, data);
+  const res = await apiClient.put<ApiResponse<AdminOrderItem>>(`/orders/${order_id}/status/`, data);
   return res.data.data;
 };
 
 export const cancelOrder = async (order_id: number): Promise<AdminOrderItem> => {
-  const res = await apiClient.put<ApiResponse<AdminOrderItem>>(`/orders/${order_id}/cancel`);
+  const res = await apiClient.put<ApiResponse<AdminOrderItem>>(`/orders/${order_id}/cancel/`);
   return res.data.data;
 };
 export const deleteOrder = async (order_id: number): Promise<{ message: string }> => {
-  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/orders/${order_id}`);
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/orders/${order_id}/`);
   return res.data.data;
-}
+};
 
 export const formatError = (err: any) => {
   if (!err) return "Something went wrong";
@@ -436,13 +442,13 @@ export interface UpdateUserPayload {
 
 // ✅ Get all users (superadmin only)
 export const fetchAllUsers = async (): Promise<AppUser[]> => {
-  const res = await apiClient.get<ApiResponse<AppUser[]>>("/users");
+  const res = await apiClient.get<ApiResponse<AppUser[]>>("/users/");
   return res.data.data;
 };
 
 // ✅ Get single user by ID
 export const fetchUserById = async (user_id: number): Promise<AppUser> => {
-  const res = await apiClient.get<ApiResponse<AppUser>>(`/users/${user_id}`);
+  const res = await apiClient.get<ApiResponse<AppUser>>(`/users/${user_id}/`);
   return res.data.data;
 };
 
@@ -460,31 +466,31 @@ export const deleteUser = async (user_id: number): Promise<{ message: string }> 
 
 // ✅ Update superadmin's own settings
 export const updateSuperadminSettings = async (data: UpdateUserPayload): Promise<AppUser> => {
-  const res = await apiClient.put<ApiResponse<AppUser>>("/users/settings", data);
+  const res = await apiClient.put<ApiResponse<AppUser>>("/users/settings/", data);
   return res.data.data;
 };
 
 // ✅ Create admin (superadmin only)
 export const createAdmin = async (data: { username: string; email: string; password: string }): Promise<AppUser> => {
-  const res = await apiClient.post<ApiResponse<AppUser>>("/auth/create-admin", data);
+  const res = await apiClient.post<ApiResponse<AppUser>>("/auth/create-admin/", data);
   return res.data.data;
 };
 
 // ✅ Delete admin (superadmin only)
 export const deleteAdmin = async (admin_id: number): Promise<{ message: string }> => {
-  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/auth/delete-admin/${admin_id}`);
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/auth/delete-admin/${admin_id}/`);
   return res.data.data;
 };
 
 // ✅ Get all admins (superadmin only)
 export const fetchAllAdmins = async (): Promise<AppUser[]> => {
-  const res = await apiClient.get<ApiResponse<AppUser[]>>("/auth/admins");
+  const res = await apiClient.get<ApiResponse<AppUser[]>>("/auth/admins/");
   return res.data.data;
 };
 
 // ✅ Update user role (superadmin only)
 export const updateUserRole = async (user_id: number, new_role: "user" | "admin" | "superadmin"): Promise<AppUser> => {
-  const res = await apiClient.put<ApiResponse<AppUser>>(`/auth/${user_id}/role`, { new_role });
+  const res = await apiClient.put<ApiResponse<AppUser>>(`/auth/${user_id}/role/`, { new_role });
   return res.data.data;
 };
 
@@ -503,24 +509,21 @@ export interface WishlistCreatePayload {
 
 // Get all wishlist items for a user
 export const fetchUserWishlist = async (user_id: number): Promise<Wishlist[]> => {
-  const res = await apiClient.get<ApiResponse<Wishlist[]>>(`/wishlist/user/${user_id}`);
+  const res = await apiClient.get<ApiResponse<Wishlist[]>>(`/wishlist/user/${user_id}/`);
   return res.data.data;
 };
 
-// Get a single wishlist item by ID
 export const fetchWishlistById = async (wishlist_id: number): Promise<Wishlist> => {
-  const res = await apiClient.get<ApiResponse<Wishlist>>(`/wishlist/${wishlist_id}`);
+  const res = await apiClient.get<ApiResponse<Wishlist>>(`/wishlist/${wishlist_id}/`);
   return res.data.data;
 };
 
-// Add item to wishlist
 export const createWishlistItem = async (data: WishlistCreatePayload): Promise<Wishlist> => {
   const res = await apiClient.post<ApiResponse<Wishlist>>(`/wishlist/`, data);
   return res.data.data;
 };
 
-// Delete wishlist item
 export const deleteWishlistItem = async (wishlist_id: number): Promise<{ message: string }> => {
-  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/wishlist/${wishlist_id}`);
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/wishlist/${wishlist_id}/`);
   return res.data.data;
 };

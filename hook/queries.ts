@@ -334,9 +334,10 @@ export const useCheckout = () => {
 
 // ✅ Get all user addresses
 export const useAddresses = (options?: { enabled?: boolean }) => {
+  const { token } = useAuthStore.getState();
   return useQuery<Address[]>({
     queryKey: ["addresses"],
-    queryFn: fetchAddresses,
+    queryFn: () => fetchAddresses(token || undefined),
     ...options,
   });
 };
@@ -463,11 +464,11 @@ export const useOrder = (order_id: number | null) => {
 };
 
 export const useOrderHistory = (options?: { enabled?: boolean }) => {
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, token } = useAuthStore();
 
   return useQuery<OrderHistoryItem[], Error>({
     queryKey: ["orderHistory"],
-    queryFn: fetchUserOrders,
+    queryFn: () => fetchUserOrders(token || undefined),
     enabled: isLoggedIn(), // default enabled check
     staleTime: 1000 * 60 * 2,
     ...options,

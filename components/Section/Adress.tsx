@@ -30,6 +30,12 @@ export default function StepAddress({ onNext }: StepAddressProps) {
     phone_number: "",
   });
 
+  // Load selected address from localStorage if exists
+  useEffect(() => {
+    const savedId = localStorage.getItem("selectedAddressId");
+    if (savedId) setSelectedId(Number(savedId));
+  }, []);
+
   // Conditionally show loading if not hydrated yet to prevent firing requests with null tokens
   if (!_hasHydrated || (token && isLoading)) {
     return (
@@ -39,12 +45,6 @@ export default function StepAddress({ onNext }: StepAddressProps) {
       </div>
     );
   }
-
-  // Load selected address from localStorage if exists
-  useEffect(() => {
-    const savedId = localStorage.getItem("selectedAddressId");
-    if (savedId) setSelectedId(Number(savedId));
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
