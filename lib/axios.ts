@@ -10,9 +10,15 @@ const apiClient = axios.create({
 
 // Request interceptor: attach token
 apiClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Skip adding token for auth-related endpoints to avoid backend confusion with old tokens
+  const publicPaths = ["/auth/login", "/auth/register", "/auth/verify"];
+  const isPublicPath = publicPaths.some(path => config.url?.includes(path));
+
+  if (!isPublicPath) {
+    const token = useAuthStore.getState().token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });

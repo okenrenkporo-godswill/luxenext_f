@@ -29,7 +29,7 @@ export interface Category {
   description?: string;
   created_at: string;
   total_sales: number;    // total sold items in this category
-  total_quantity: number; 
+  total_quantity: number;
 }
 // lib/api.ts
 export interface SearchOptions {
@@ -41,7 +41,7 @@ export interface SearchOptions {
   limit?: number;
   category?: string;
   page?: number;   // ✅ Add this
-  
+
 }
 
 
@@ -49,12 +49,12 @@ export interface SearchOptions {
 
 // ✅ Product API Functions
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await apiClient.get<ApiResponse<Product[]>>("/products");
+  const res = await apiClient.get<ApiResponse<Product[]>>("/products/");
   return res.data.data;
 }
 
 export async function fetchProductById(id: number | string): Promise<Product> {
-  const res = await apiClient.get<ApiResponse<Product>>(`/products/${id}`);
+  const res = await apiClient.get<ApiResponse<Product>>(`/products/${id}/`);
   return res.data.data;
 }
 
@@ -104,13 +104,13 @@ export const downloadProductImage = async (product_id: number): Promise<Blob> =>
 };
 
 export async function fetchProductsByCategoryId(categoryId: number | string): Promise<Product[]> {
-  const res = await apiClient.get<ApiResponse<Product[]>>(`/categories/${categoryId}/products`);
+  const res = await apiClient.get<ApiResponse<Product[]>>(`/categories/${categoryId}/products/`);
   return res.data.data;
 }
 
 // ✅ Category API Functions
 export async function fetchCategories(): Promise<Category[]> {
-  const res = await apiClient.get<ApiResponse<Category[]>>("/categories");
+  const res = await apiClient.get<ApiResponse<Category[]>>("/categories/");
   return res.data.data;
 }
 
@@ -155,7 +155,7 @@ export interface CartItemPayload {
 
 export const getCart = async () => {
   try {
-    const res = await apiClient.get("/cart/user");
+    const res = await apiClient.get("/cart/user/");
     // Ensure we always return an object with `items` array
     return res.data?.data || { items: [] };
   } catch (err) {
@@ -242,7 +242,7 @@ export interface AddressPayload {
 }
 
 export const fetchAddresses = async (): Promise<Address[]> => {
-  const res = await apiClient.get<ApiResponse<Address[]>>("/addresses");
+  const res = await apiClient.get<ApiResponse<Address[]>>("/addresses/");
   return res.data.data;
 };
 
@@ -252,17 +252,17 @@ export const fetchAddressById = async (address_id: number): Promise<Address> => 
 };
 
 export const createAddress = async (data: AddressPayload): Promise<Address> => {
-  const res = await apiClient.post<ApiResponse<Address>>("/addresses", data);
+  const res = await apiClient.post<ApiResponse<Address>>("/addresses/", data);
   return res.data.data;
 };
 
 export const updateAddress = async (address_id: number, data: Partial<AddressPayload>): Promise<Address> => {
-  const res = await apiClient.put<ApiResponse<Address>>(`/addresses/${address_id}`, data);
+  const res = await apiClient.put<ApiResponse<Address>>(`/addresses/${address_id}/`, data);
   return res.data.data;
 };
 
 export const deleteAddress = async (address_id: number): Promise<Address> => {
-  const res = await apiClient.delete<ApiResponse<Address>>(`/addresses/${address_id}`);
+  const res = await apiClient.delete<ApiResponse<Address>>(`/addresses/${address_id}/`);
   return res.data.data;
 };
 
@@ -277,7 +277,7 @@ export interface PaymentMethod {
 }
 
 export const fetchPaymentMethods = async (): Promise<PaymentMethod[]> => {
-  const res = await apiClient.get<PaymentMethod[]>("/payment/payment-methods");
+  const res = await apiClient.get<PaymentMethod[]>("/payment/payment-methods/");
   return res.data;
 };
 
@@ -342,12 +342,12 @@ export interface OrderHistoryItem {
 }
 
 export const fetchUserOrders = async (): Promise<OrderHistoryItem[]> => {
-  const res = await apiClient.get<ApiResponse<OrderHistoryItem[]>>("/orders/user");
+  const res = await apiClient.get<ApiResponse<OrderHistoryItem[]>>("/orders/user/");
   return res.data.data;
 };
 
 export const fetchOrderById = async (order_id: number): Promise<OrderResponse> => {
-  const res = await apiClient.get<ApiResponse<OrderResponse>>(`/orders/${order_id}`);
+  const res = await apiClient.get<ApiResponse<OrderResponse>>(`/orders/${order_id}/`);
   return res.data.data;
 };
 
@@ -360,7 +360,7 @@ export interface AdminOrderItem {
   total_amount: number;
   payment_status: string;
   order_status: string;
-  
+
   created_at: string;
   user: {
     id: number;
@@ -398,7 +398,7 @@ export const cancelOrder = async (order_id: number): Promise<AdminOrderItem> => 
   const res = await apiClient.put<ApiResponse<AdminOrderItem>>(`/orders/${order_id}/cancel`);
   return res.data.data;
 };
- export const deleteOrder = async (order_id: number): Promise<{ message: string }> => {
+export const deleteOrder = async (order_id: number): Promise<{ message: string }> => {
   const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/orders/${order_id}`);
   return res.data.data;
 }

@@ -36,22 +36,7 @@ export default function Menu({ menuOpen }: MenuProps) {
          
         </li>
 
-        <li>
-          <Link
-            href="/collections"
-            className="hover:text-indigo-500 dark:hover:text-indigo-300 font-semibold transition"
-          >
-            Collections
-          </Link>
-        </li>
-        <li>
-          <Link
-            href="/contact"
-            className="hover:text-indigo-500 dark:hover:text-indigo-300 font-semibold transition"
-          >
-            Contact
-          </Link>
-        </li>
+    
       </ul>
 
       {/* Mobile Menu */}

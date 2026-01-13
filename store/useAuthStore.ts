@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { CartItem, useCartStore } from "./useCartStore";
-import { localStorageAdapter } from "@/lib/utils";
 
 export interface User {
   id: number;
@@ -51,7 +50,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage", // localStorage key
-      storage: localStorageAdapter, // custom localStorage adapter
+      storage: createJSONStorage(() => localStorage), // use standard storage
       partialize: (state) => ({ user: state.user, token: state.token }), // only persist user & token
       onRehydrateStorage: (state) => {
         return () => {

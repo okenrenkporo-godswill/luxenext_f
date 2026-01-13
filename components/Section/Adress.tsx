@@ -5,15 +5,19 @@ import { Button } from "@/components/ui/button";
 import { useAddresses, useCreateAddress, useDeleteAddress } from "@/hook/queries";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 interface StepAddressProps {
   onNext: () => void;
 }
 
 export default function StepAddress({ onNext }: StepAddressProps) {
-  const { data: addresses, isLoading } = useAddresses();
+  const { data: addresses, isLoading, isError, error } = useAddresses();
   const { mutate: createAddress, isPending } = useCreateAddress();
   const { mutate: deleteAddress, isPending: deleting } = useDeleteAddress();
+  const { logout } = useAuthStore();
+  const router = useRouter();
 
   const [showForm, setShowForm] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -57,11 +61,47 @@ export default function StepAddress({ onNext }: StepAddressProps) {
     }
     onNext();
   };
-
+  
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <Loader2 className="animate-spin text-gray-400" />
+      <div className="flex flex-col justify-center items-center h-48 gap-3">
+        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
+        <p className="text-sm text-gray-500 font-medium">Loading your addresses...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    const isAuthError = (error as any)?.response?.status === 401;
+    return (
+      <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center">
+        <p className="text-red-700 font-bold mb-2">Failed to load addresses</p>
+        <p className="text-red-600/70 text-sm mb-6">
+          {isAuthError 
+            ? "Your security session has expired. Please log in again to continue." 
+            : "Something went wrong. Please try again later."}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button 
+            variant="outline" 
+            className="border-red-200 text-red-700 hover:bg-red-100"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </Button>
+          {isAuthError && (
+             <Button 
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={async () => {
+                   await fetch("/api/auth/logout", { method: "POST" });
+                   logout();
+                   router.push("/login?redirect=/checkout");
+                }}
+             >
+                Log In Again
+             </Button>
+          )}
+        </div>
       </div>
     );
   }
