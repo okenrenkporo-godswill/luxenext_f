@@ -40,7 +40,7 @@ export default function Profile({
   menuOpen,
   setMenuOpen,
 }: ProfileProps) {
-  const { user, logout } = useAuthStore();
+  const { user, logout, _hasHydrated } = useAuthStore();
   const router = useRouter();
   const { data: orders, isLoading, error } = useOrderHistory();
   const [open, setOpen] = useState(false);
@@ -61,7 +61,7 @@ export default function Profile({
     }
   };
 
-  if (!user) return null;
+  if (!_hasHydrated || !user) return null;
 
   return (
     <motion.div

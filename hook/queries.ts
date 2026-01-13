@@ -466,7 +466,7 @@ export const useOrderHistory = () => {
   return useQuery<OrderHistoryItem[], Error>({
     queryKey: ["orderHistory"],
     queryFn: fetchUserOrders,
-    enabled: isLoggedIn, // only fetch when logged in
+    enabled: isLoggedIn(), // ✅ Call the function
     staleTime: 1000 * 60 * 2,
   });
 };

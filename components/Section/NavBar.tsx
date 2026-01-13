@@ -22,7 +22,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user } = useAuthStore();
+  const { user, _hasHydrated } = useAuthStore();
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -54,8 +54,10 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <SearchBar />
 
-            {/* Account / Profile */}
-            {user ? (
+            {/* Account / Profile - Wait for hydration */}
+            {!_hasHydrated ? (
+              <div className="w-24 h-9 bg-gray-100 animate-pulse rounded-full" />
+            ) : user ? (
               <Profile darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
             ) : (
               <>
