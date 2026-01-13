@@ -38,7 +38,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`bg-white dark:bg-gray-900 sticky top-0 z-50 transition-shadow ${
+      className={`bg-white dark:bg-gray-900 transition-shadow ${
         isScrolled ? "shadow-xl" : "shadow"
       }`}
     >

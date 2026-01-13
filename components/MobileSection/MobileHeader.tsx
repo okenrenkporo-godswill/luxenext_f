@@ -33,16 +33,21 @@ export default function MobileHeader() {
   // Dark mode toggle
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev);
-    document.documentElement.classList.toggle("dark", !darkMode);
-    localStorage.setItem("darkMode", (!darkMode).toString());
+    const newMode = !darkMode;
+    document.documentElement.classList.toggle("dark", newMode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("darkMode", newMode.toString());
+    }
   };
 
   // Load dark mode from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("darkMode");
-    if (saved === "true") {
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("darkMode");
+      if (saved === "true") {
+        setDarkMode(true);
+        document.documentElement.classList.add("dark");
+      }
     }
   }, []);
 
@@ -50,7 +55,7 @@ export default function MobileHeader() {
     <>
       <header
         className={clsx(
-          "sticky top-0 left-0 w-full flex items-center justify-between px-4 h-16 z-50 transition-all duration-300 backdrop-blur-md",
+          "left-0 w-full flex items-center justify-between px-4 h-16 transition-all duration-300 backdrop-blur-md",
           scrolled
             ? "bg-white/95 shadow-md border-b border-gray-200 dark:bg-gray-900/95"
             : "bg-white/90 dark:bg-gray-900/90"
