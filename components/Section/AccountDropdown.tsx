@@ -85,7 +85,7 @@ export default function AccountDropdown() {
               <p className="text-xs text-gray-500 uppercase font-bold">My Account</p>
             </div>
             <DropdownMenuItem asChild>
-              <Link href="/user/account" className="cursor-pointer py-2">
+              <Link href="/account" className="cursor-pointer py-2">
                 <User className="w-4 h-4 mr-2 text-green-600" /> My Account
               </Link>
             </DropdownMenuItem>

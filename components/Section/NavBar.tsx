@@ -20,6 +20,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -49,16 +50,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
           
-          {/* 1. Logo & Basic Links */}
-          <div className="flex items-center gap-8">
+          {/* 1. Logo & Menu */}
+          <div className="flex items-center gap-4">
             <LogoSection />
-            <div className="hidden lg:flex items-center gap-6">
-              <Link href="/product" className="text-sm font-semibold text-gray-700 hover:text-green-600 dark:text-gray-200 transition-colors">
-                Products
-              </Link>
-              <Link href="/categories" className="text-sm font-semibold text-gray-700 hover:text-green-600 dark:text-gray-200 transition-colors">
-                Categories
-              </Link>
+            <div className="hidden lg:block ml-4">
+               <MenuSection menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
             </div>
           </div>
 
@@ -86,7 +82,10 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Toggle (Simplified) */}
-            <button className="md:hidden p-1">
+            <button 
+              className="md:hidden p-1"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
               <MenuIcon className="w-6 h-6 text-gray-700 dark:text-gray-200" />
             </button>
           </div>

@@ -6,7 +6,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { X, Heart, Trash2, Package } from "lucide-react";
+import { X, Trash2, Package } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   useCart,
@@ -14,12 +15,6 @@ import {
   useRemoveCartItem,
   useClearCart,
 } from "@/hook/queries";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 
 // Backend cart item may include `id`
 type BackendCartItem = CartItem & { id?: number };
@@ -41,8 +36,6 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
   const updateCartMutation = useUpdateCartItem();
   const removeCartMutation = useRemoveCartItem();
   const clearCartMutation = useClearCart();
-
-  const [wishlist, setWishlist] = useState<number[]>([]);
 
   // Sync backend cart with local store
   useEffect(() => {
@@ -103,136 +96,144 @@ export default function MobileCart({ open, setOpen }: MobileCartProps) {
   const total = subtotal + shipping;
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerContent className="max-h-[85vh] p-0 flex flex-col bg-white dark:bg-gray-900 border-t-2 rounded-t-3xl">
-        <DrawerHeader className="border-b px-4 py-3">
-          <div className="flex items-center justify-between">
-            <DrawerTitle className="text-xl font-bold flex items-center gap-2">
-              My Shopping Cart
-              <span className="text-sm font-normal text-gray-500">
-                ({items.length} items)
-              </span>
-            </DrawerTitle>
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="rounded-full">
-               <X className="w-5 h-5 text-gray-500" />
-            </Button>
-          </div>
-        </DrawerHeader>
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"
+          />
 
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
-          {!items.length ? (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Package className="w-10 h-10" />
-               </div>
-               <p className="text-lg font-medium">Your cart is empty</p>
-               <Button variant="link" onClick={() => setOpen(false)} className="text-green-600 mt-2">
-                  Start shopping now
-               </Button>
+          {/* Cart Sidebar (Right Slide) */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 h-full w-[85%] sm:w-[400px] bg-white dark:bg-gray-900 shadow-2xl z-[70] flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
+                Shopping Cart
+                <span className="text-sm font-normal text-gray-500">({items.length})</span>
+              </h2>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setOpen(false)}
+                className="rounded-full hover:bg-gray-100"
+              >
+                <X className="w-6 h-6" />
+              </Button>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {items.map((item) => (
-                <div
-                  key={item.product_id}
-                  className="flex gap-4 p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50 group hover:bg-gray-100 transition-colors"
-                >
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
-                    <Image
-                      src={item.image || "/placeholder.png"}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  
-                  <div className="flex-1 flex flex-col min-w-0">
-                    <div className="flex justify-between items-start gap-1">
-                       <h3 className="font-semibold text-gray-800 dark:text-gray-100 truncate pr-2">
-                         {item.name}
-                       </h3>
-                       <p className="font-bold text-gray-900 dark:text-white flex-shrink-0">
-                         ₦{(item.price * item.quantity).toLocaleString()}
-                       </p>
-                    </div>
 
-                    <div className="mt-auto flex items-center justify-between">
-                       <div className="flex items-center bg-white dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 px-1 py-0.5 shadow-sm">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="w-7 h-7 rounded-full text-indigo-600"
+            {/* Cart Items */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {!items.length ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                  <Package className="w-16 h-16 mb-4 opacity-20" />
+                  <p className="text-lg">Your cart is empty</p>
+                  <Button variant="link" onClick={() => setOpen(false)} className="text-green-600 mt-2">
+                     Start Shopping
+                  </Button>
+                </div>
+              ) : (
+                items.map((item) => (
+                  <div key={item.product_id} className="flex gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                      <Image 
+                        src={item.image || "/placeholder.png"} 
+                        alt={item.name} 
+                        fill 
+                        className="object-cover" 
+                      />
+                    </div>
+                    <div className="flex-1 flex flex-col min-w-0">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-semibold text-gray-800 dark:text-gray-100 truncate pr-2">
+                          {item.name}
+                        </h3>
+                        <p className="font-bold text-gray-900 dark:text-white">
+                          ₦{(item.price * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
+                      
+                      <div className="mt-auto flex items-center justify-between">
+                        <div className="flex items-center bg-white dark:bg-gray-700 rounded-lg border px-1">
+                          <button 
                             onClick={() => handleDecrease(item)}
+                            className="w-8 h-8 flex items-center justify-center text-green-600 hover:bg-gray-100 rounded"
                           >
                             -
-                          </Button>
+                          </button>
                           <span className="w-8 text-center font-bold text-sm">{item.quantity}</span>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="w-7 h-7 rounded-full text-indigo-600"
+                          <button 
                             onClick={() => handleIncrease(item)}
+                            className="w-8 h-8 flex items-center justify-center text-green-600 hover:bg-gray-100 rounded"
                           >
                             +
-                          </Button>
-                       </div>
-
-                       <div className="flex items-center gap-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="w-8 h-8 text-red-500 hover:bg-red-50"
-                            onClick={() => handleRemove(item)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                       </div>
+                          </button>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemove(item)}
+                          className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
-          )}
-        </div>
 
-        {items.length > 0 && (
-          <div className="p-5 bg-white dark:bg-gray-900 border-t border-gray-100 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm text-gray-600 py-1">
-                <span>Subtotal</span>
-                <span className="font-medium text-gray-900">₦{subtotal.toLocaleString()}</span>
+            {/* Footer Summary */}
+            {items.length > 0 && (
+              <div className="p-4 border-t bg-gray-50 dark:bg-gray-800/50">
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₦{subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Shipping</span>
+                    <span>₦{shipping.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg text-gray-900 dark:text-white pt-2 border-t">
+                    <span>Total</span>
+                    <span className="text-green-700">₦{total.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 border-red-200 text-red-500 hover:bg-red-50"
+                    onClick={handleClear}
+                  >
+                    Clear
+                  </Button>
+                  <Button 
+                    className="flex-[2] bg-green-600 hover:bg-green-700 text-white font-bold py-6 rounded-xl shadow-lg"
+                    onClick={() => {
+                      router.push("/checkout");
+                      setOpen(false);
+                    }}
+                  >
+                    CHECKOUT
+                  </Button>
+                </div>
               </div>
-              <div className="flex justify-between text-sm text-gray-600 py-1 border-b pb-2 border-gray-50">
-                <span>Shipping Fee</span>
-                <span className="font-medium text-gray-900">₦{shipping.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between pt-2">
-                <span className="text-lg font-bold text-gray-800">Total Amount</span>
-                <span className="text-xl font-extrabold text-green-700">₦{total.toLocaleString()}</span>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 mt-4">
-               <Button
-                  variant="outline"
-                  className="flex-1 border-red-200 text-red-500 hover:bg-red-50"
-                  onClick={handleClear}
-               >
-                  Clear Cart
-               </Button>
-               <Button
-                  className="flex-[2] bg-green-600 hover:bg-green-700 text-white font-bold h-12 rounded-xl text-lg shadow-lg active:scale-95 transition-transform"
-                  onClick={() => {
-                    router.push("/checkout");
-                    setOpen(false);
-                  }}
-                >
-                  CHECKOUT
-                </Button>
-            </div>
-          </div>
-        )}
-      </DrawerContent>
-    </Drawer>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

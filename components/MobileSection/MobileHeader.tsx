@@ -33,9 +33,7 @@ export default function MobileHeader() {
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200">
       <div className="flex items-center justify-between px-4 h-16">
         {/* Left: Menu Toggle */}
-        <button className="p-2">
-            <MenuIcon className="w-6 h-6 text-gray-700 dark:text-gray-200" />
-        </button>
+        
 
         {/* Center: Logo */}
         <div 
