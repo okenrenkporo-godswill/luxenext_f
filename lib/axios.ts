@@ -22,10 +22,16 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      const { logout, _hasHydrated } = useAuthStore.getState();
+      const { logout, _hasHydrated, token } = useAuthStore.getState();
 
-      if (_hasHydrated) {
-        console.warn("Session expired or invalid token. Logging out...");
+      // Get the token actually used in THIS request
+      const authHeader = error.config?.headers?.Authorization;
+      const requestToken = typeof authHeader === 'string' ? authHeader.split(" ")[1] : null;
+
+      // ONLY trigger logout if we have a current session AND the request was using that token
+      // This prevents stale requests from previous sessions from logging out a newly logged-in user.
+      if (_hasHydrated && token && requestToken === token) {
+        console.warn("Current session token is invalid or expired. Logging out...");
 
         // 1. Clear Zustand state
         logout();
@@ -43,6 +49,9 @@ apiClient.interceptors.response.use(
             console.error("Cleanup failed", e);
           }
         }
+      } else {
+        // If the 401 came from a request with an old token or no token, just ignore it.
+        console.warn("Unauthorized API call (Stale/Missing Token). Global logout skipped.");
       }
     }
     return Promise.reject(error);
