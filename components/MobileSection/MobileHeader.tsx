@@ -1,133 +1,54 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, Sun, Moon } from "lucide-react";
+
+import { Search, ShoppingCart, Sun, Moon, MenuIcon, User, LogIn } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import MobileCart from "./MobileCart";
-import MobileSearch from "./MobileSearch";
 import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { User, LogIn } from "lucide-react";
+import AccountDropdown from "../Section/AccountDropdown";
+import SearchBar from "../Section/Search";
+import CartButton from "../Section/CartButton";
 
 export default function MobileHeader() {
   const router = useRouter();
-  const { user, _hasHydrated } = useAuthStore();
-  const [scrolled, setScrolled] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const cartCount = useCartStore((state) =>
-    state.items.reduce((acc, item) => acc + item.quantity, 0)
-  );
-
-  // Scroll effect
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    setMounted(true);
   }, []);
 
-  // Dark mode toggle
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
-    const newMode = !darkMode;
-    document.documentElement.classList.toggle("dark", newMode);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("darkMode", newMode.toString());
-    }
-  };
-
-  // Load dark mode from localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("darkMode");
-      if (saved === "true") {
-        setDarkMode(true);
-        document.documentElement.classList.add("dark");
-      }
-    }
-  }, []);
+  if (!mounted) return <div className="h-16 bg-white w-full animate-pulse" />;
 
   return (
-    <>
-      <header
-        className={clsx(
-          "left-0 w-full flex items-center justify-between px-4 h-16 transition-all duration-300 backdrop-blur-md",
-          scrolled
-            ? "bg-white/95 shadow-md border-b border-gray-200 dark:bg-gray-900/95"
-            : "bg-white/90 dark:bg-gray-900/90"
-        )}
-      >
-        {/* Logo */}
-        <div
-          className="flex-1 flex justify-center items-center cursor-pointer"
-          onClick={() => router.push("/mobile")}
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 h-16">
+        {/* Left: Menu Toggle */}
+        <button className="p-2">
+            <MenuIcon className="w-6 h-6 text-gray-700 dark:text-gray-200" />
+        </button>
+
+        {/* Center: Logo */}
+        <div 
+          className="flex-1 text-center cursor-pointer"
+          onClick={() => router.push("/")}
         >
-          <h1 className="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-yellow-800 dark:from-green-400 dark:to-yellow-600">
-            LuxeNext
-          </h1>
+          <span className="text-xl font-bold text-green-700">LuxeNext</span>
         </div>
 
-        {/* Actions */}
+        {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Account/Profile */}
-          {!_hasHydrated ? (
-            <div className="w-10 h-10 bg-gray-100 animate-pulse rounded-full" />
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push(user ? "/user/dashboard" : "/login")}
-            >
-              {user ? (
-                <User className="w-6 h-6 text-indigo-600" />
-              ) : (
-                <LogIn className="w-6 h-6 text-gray-800 dark:text-white" />
-              )}
-            </Button>
-          )}
-
-          {/* Search */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSearchOpen(true)}
-          >
-            <Search className="w-6 h-6 text-gray-800 dark:text-white" />
-          </Button>
-
-          {/* Dark Mode Toggle */}
-          <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-            {darkMode ? (
-              <Sun className="w-6 h-6 text-yellow-400" />
-            ) : (
-              <Moon className="w-6 h-6 text-gray-800 dark:text-white" />
-            )}
-          </Button>
-
-          {/* Cart */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            onClick={() => setCartOpen(true)}
-          >
-            <ShoppingCart className="w-6 h-6 text-gray-800 dark:text-white" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                {cartCount}
-              </span>
-            )}
-          </Button>
+          <AccountDropdown />
+          <CartButton />
         </div>
-      </header>
+      </div>
 
-      {/* Overlays */}
-      <MobileCart open={cartOpen} setOpen={setCartOpen} />
-      <MobileSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-    </>
+      {/* Full width search bar below top row */}
+      <div className="px-4 pb-3">
+        <SearchBar />
+      </div>
+    </header>
   );
 }

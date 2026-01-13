@@ -17,13 +17,13 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: handle 401 globally
+// Response interceptor: handle errors globally
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only log, don't force logout here to avoid race conditions with hydration
     if (error.response?.status === 401) {
-      console.warn("Unauthorized — logging out...");
-      useAuthStore.getState().logout();
+      console.warn("Unauthorized API call");
     }
     return Promise.reject(error);
   }

@@ -8,98 +8,93 @@ import { Button } from "../ui/button";
 import {
   UserIcon,
   BellIcon,
-  SunIcon,
-  MoonIcon,
   MenuIcon,
-  XIcon,
+  HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 import SearchBar from "./Search";
-import CartButton from "./CartButton"; // ✅ Imported new Cart component
-import Profile from "./Profile";
+import CartButton from "./CartButton";
+import AccountDropdown from "./AccountDropdown";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, _hasHydrated } = useAuthStore();
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) document.documentElement.classList.add("dark");
-    else document.documentElement.classList.remove("dark");
-  };
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (!mounted) {
+    return (
+      <nav className="bg-white h-16 border-b flex items-center px-4">
+        <div className="max-w-7xl mx-auto w-full flex justify-between">
+          <div className="w-32 h-8 bg-gray-100 animate-pulse rounded" />
+          <div className="hidden md:block flex-1 max-w-xl h-10 bg-gray-100 animate-pulse rounded-full mx-8" />
+          <div className="w-24 h-8 bg-gray-100 animate-pulse rounded" />
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav
-      className={`bg-white dark:bg-gray-900 transition-shadow ${
-        isScrolled ? "shadow-xl" : "shadow"
+      className={`bg-white dark:bg-gray-900 sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled ? "shadow-md py-2" : "py-4 shadow-sm"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          {/* Logo Section */}
-          <LogoSection />
+        <div className="flex items-center justify-between gap-4">
+          
+          {/* 1. Logo & Basic Links */}
+          <div className="flex items-center gap-8">
+            <LogoSection />
+            <div className="hidden lg:flex items-center gap-6">
+              <Link href="/product" className="text-sm font-semibold text-gray-700 hover:text-green-600 dark:text-gray-200 transition-colors">
+                Products
+              </Link>
+              <Link href="/categories" className="text-sm font-semibold text-gray-700 hover:text-green-600 dark:text-gray-200 transition-colors">
+                Categories
+              </Link>
+            </div>
+          </div>
 
-          {/* Menu Links */}
-          <MenuSection menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-
-          {/* Right Section */}
-          <div className="flex items-center gap-4">
+          {/* 2. Prominent Search (Desktop) */}
+          <div className="hidden md:flex flex-1 max-w-2xl px-4">
             <SearchBar />
+          </div>
 
-            {/* Account / Profile - Wait for hydration */}
-            {!_hasHydrated ? (
-              <div className="w-24 h-9 bg-gray-100 animate-pulse rounded-full" />
-            ) : user ? (
-              <Profile darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button className="bg-white text-black border rounded-full cursor-pointer hover:bg-gray-100 flex items-center gap-1">
-                    <UserIcon className="w-5 h-5 text-gray-700" />
-                    Account
-                  </Button>
-                </Link>
+          {/* 3. Actions */}
+          <div className="flex items-center gap-2 md:gap-6">
+            
+            {/* Account Dropdown (The consolidated fix) */}
+            <AccountDropdown />
 
-                {/* Notifications */}
-                <BellIcon className="w-5 h-5 text-gray-700 cursor-pointer" />
+            {/* Help Dropdown (Optional/Static) */}
+            <button className="hidden sm:flex items-center gap-1 text-sm font-medium hover:text-green-600 dark:text-gray-200">
+               <HelpCircle className="w-5 h-5 md:w-6 md:h-6" />
+               <span className="hidden lg:inline">Help</span>
+               <ChevronDown className="w-4 h-4 opacity-50" />
+            </button>
 
-                {/* Dark Mode */}
-                <button
-                  onClick={toggleDarkMode}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                >
-                  {darkMode ? (
-                    <SunIcon className="w-5 h-5 text-yellow-400" />
-                  ) : (
-                    <MoonIcon className="w-5 h-5 text-gray-700" />
-                  )}
-                </button>
-              </>
-            )}
+            {/* Cart */}
+            <div className="relative">
+              <CartButton />
+            </div>
 
-            {/* ✅ Cart Button (Reusable Component) */}
-            <CartButton />
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              {menuOpen ? (
-                <XIcon className="w-5 h-5" />
-              ) : (
-                <MenuIcon className="w-5 h-5" />
-              )}
+            {/* Mobile Menu Toggle (Simplified) */}
+            <button className="md:hidden p-1">
+              <MenuIcon className="w-6 h-6 text-gray-700 dark:text-gray-200" />
             </button>
           </div>
+        </div>
+
+        {/* Mobile Search - Visible only on mobile */}
+        <div className="mt-3 md:hidden">
+          <SearchBar />
         </div>
       </div>
     </nav>

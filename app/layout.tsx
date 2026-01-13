@@ -31,17 +31,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased w-full min-h-screen flex flex-col bg-white overflow-x-hidden`}
       >
         <Provider>
-          {/* ✅ Sticky Header — not nested */}
-          <div className="sticky top-0 z-50 bg-white shadow-sm">
-            {/* Mobile Header */}
-            <div className="block md:hidden">
-              <MobileHeader />
-            </div>
+          {/* Mobile Header */}
+          <div className="block md:hidden">
+            <MobileHeader />
+          </div>
 
-            {/* Desktop Header */}
-            <div className="hidden md:block">
-              <Headers />
-            </div>
+          {/* Desktop Header */}
+          <div className="hidden md:block">
+            <Headers />
           </div>
 
           {/* ✅ Main Content — NO WHITE GAP */}
