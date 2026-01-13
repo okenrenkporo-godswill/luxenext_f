@@ -32,7 +32,10 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("Token")?.value;
   const pathname = req.nextUrl.pathname.toLowerCase();
   const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
-  const isProtected = pathname.startsWith("/user") || pathname.startsWith("/admin");
+
+  // Protect routes starting with /user, /admin OR specific e-commerce paths
+  const authProtected = ["/user", "/admin", "/checkout", "/account", "/orders", "/wishlist"];
+  const isProtected = authProtected.some(path => pathname.startsWith(path));
 
   const decoded = token ? decodeJwt(token) : null;
 
@@ -88,5 +91,9 @@ export const config = {
     "/register",
     "/auth/verify",
     "/auth/check-email",
+    "/checkout",
+    "/account",
+    "/orders",
+    "/wishlist",
   ],
 };
