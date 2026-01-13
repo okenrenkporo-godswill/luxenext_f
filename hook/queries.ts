@@ -351,9 +351,10 @@ export const useAddress = (address_id: number | null) => {
 // ✅ Create new address
 export const useCreateAddress = () => {
   const queryClient = useQueryClient();
+  const { token } = useAuthStore.getState();
 
   return useMutation({
-    mutationFn: (data: AddressPayload) => createAddress(data),
+    mutationFn: (data: AddressPayload) => createAddress(data, token || undefined),
     onSuccess: () => {
       toast.success("Address created successfully");
       queryClient.invalidateQueries({ queryKey: ["addresses"] });

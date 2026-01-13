@@ -17,7 +17,7 @@ apiClient.interceptors.request.use((config) => {
   if (!isPublicPath) {
     const token = useAuthStore.getState().token;
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.set("Authorization", `Bearer ${token}`);
     }
   }
   return config;

@@ -251,8 +251,11 @@ export const fetchAddressById = async (address_id: number): Promise<Address> => 
   return res.data.data;
 };
 
-export const createAddress = async (data: AddressPayload): Promise<Address> => {
-  const res = await apiClient.post<ApiResponse<Address>>("/addresses/", data);
+export const createAddress = async (data: AddressPayload, tokenOverride?: string): Promise<Address> => {
+  const config = tokenOverride
+    ? { headers: { Authorization: `Bearer ${tokenOverride}` } }
+    : {};
+  const res = await apiClient.post<ApiResponse<Address>>("/addresses/", data, config);
   return res.data.data;
 };
 
