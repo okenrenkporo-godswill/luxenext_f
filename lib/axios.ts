@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://luxenext.onrender.com";
@@ -9,7 +9,7 @@ const apiClient = axios.create({
 });
 
 // Request interceptor: attach token
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const publicPaths = ["/auth/login", "/auth/register", "/auth/verify"];
   const isPublicPath = publicPaths.some(path => config.url?.includes(path));
 
