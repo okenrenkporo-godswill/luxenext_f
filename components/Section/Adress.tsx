@@ -11,7 +11,7 @@ interface StepAddressProps {
 }
 
 export default function StepAddress({ onNext }: StepAddressProps) {
-  const { data: addresses, isLoading } = useAddresses();
+  const { data: addresses, isLoading, isError, error } = useAddresses();
   const { mutate: createAddress, isPending } = useCreateAddress();
   const { mutate: deleteAddress, isPending: deleting } = useDeleteAddress();
 
@@ -60,8 +60,27 @@ export default function StepAddress({ onNext }: StepAddressProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <Loader2 className="animate-spin text-gray-400" />
+      <div className="flex flex-col justify-center items-center h-48 gap-3">
+        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
+        <p className="text-sm text-gray-500 font-medium">Loading your addresses...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center">
+        <p className="text-red-700 font-bold mb-2">Failed to load addresses</p>
+        <p className="text-red-600/70 text-sm mb-4">
+          {(error as any)?.response?.data?.detail || "Your session may have expired. Please try logging in again."}
+        </p>
+        <Button 
+          variant="outline" 
+          className="border-red-200 text-red-700 hover:bg-red-100"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </Button>
       </div>
     );
   }

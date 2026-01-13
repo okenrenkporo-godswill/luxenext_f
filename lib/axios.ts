@@ -20,10 +20,30 @@ apiClient.interceptors.request.use((config) => {
 // Response interceptor: handle errors globally
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Only log, don't force logout here to avoid race conditions with hydration
+  async (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized API call");
+      const { logout, _hasHydrated } = useAuthStore.getState();
+
+      if (_hasHydrated) {
+        console.warn("Session expired or invalid token. Logging out...");
+
+        // 1. Clear Zustand state
+        logout();
+
+        // 2. Clear Cookie via API route (if in browser)
+        if (typeof window !== "undefined") {
+          try {
+            await fetch("/api/auth/logout", { method: "POST" });
+
+            // 3. Redirect to login if not already there
+            if (!window.location.pathname.startsWith("/login")) {
+              window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+            }
+          } catch (e) {
+            console.error("Cleanup failed", e);
+          }
+        }
+      }
     }
     return Promise.reject(error);
   }
