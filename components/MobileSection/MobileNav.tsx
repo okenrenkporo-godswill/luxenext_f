@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Tag, Clock, Settings } from "lucide-react";
+import { Home, Tag, Clock, MessageSquare } from "lucide-react";
 import MobileAccount from "./MobileAccount";
 import OrderHistoryDrawer from "../Section/OrderHistory";
 
@@ -10,7 +10,7 @@ const navItems = [
   { label: "Home", icon: Home, href: "/mobile" },
   { label: "Product", icon: Tag, href: "/product" },
   { label: "History", icon: Clock }, // opens drawer
-  { label: "Account", icon: Settings }, // opens account drawer
+  { label: "Chat", icon: MessageSquare }, // opens account drawer
 ];
 
 export default function MobileNav() {
@@ -20,7 +20,7 @@ export default function MobileNav() {
 
   const handleClick = (itemLabel: string) => {
     setSelected(itemLabel);
-    if (itemLabel === "Account") setAccountOpen(true);
+    if (itemLabel === "Chat") setAccountOpen(true);
     if (itemLabel === "History") setHistoryOpen(true);
   };
 

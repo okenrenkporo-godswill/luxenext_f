@@ -132,7 +132,7 @@ export default function OrdersPage() {
                       onClick={() => handleViewOrder(order)}
                       className="border-green-600 text-green-700 hover:bg-green-50 rounded-full px-6"
                     >
-                      Management
+                      View
                     </Button>
                   </div>
                 </motion.div>
