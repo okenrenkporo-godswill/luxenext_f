@@ -10,18 +10,18 @@ const apiClient = axios.create({
 
 // Request interceptor: attach token
 apiClient.interceptors.request.use((config) => {
-  // Skip adding token for auth-related endpoints to avoid backend confusion with old tokens
   const publicPaths = ["/auth/login", "/auth/register", "/auth/verify"];
   const isPublicPath = publicPaths.some(path => config.url?.includes(path));
 
-  if (!isPublicPath) {
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.set("Authorization", `Bearer ${token}`);
-    }
+  const { token, _hasHydrated } = useAuthStore.getState();
+
+  if (!isPublicPath && _hasHydrated && token) {
+    config.headers.set("Authorization", `Bearer ${token}`);
   }
+
   return config;
 });
+
 
 // Response interceptor: handle errors globally
 apiClient.interceptors.response.use(
