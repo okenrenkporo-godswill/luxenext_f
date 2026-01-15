@@ -10,9 +10,11 @@ import { useRouter } from "next/navigation";
 
 interface StepAddressProps {
   onNext: () => void;
+  collapsed?: boolean;
+  onEdit?: () => void;
 }
 
-export default function StepAddress({ onNext }: StepAddressProps) {
+export default function StepAddress({ onNext, collapsed = false, onEdit }: StepAddressProps) {
   const { _hasHydrated, token, logout } = useAuthStore();
   const { data: addresses, isLoading, isError, error } = useAddresses({ enabled: _hasHydrated && !!token });
   const { mutate: createAddress, isPending } = useCreateAddress();
@@ -39,9 +41,33 @@ export default function StepAddress({ onNext }: StepAddressProps) {
   // Conditionally show loading if not hydrated yet to prevent firing requests with null tokens
   if (!_hasHydrated || (token && isLoading)) {
     return (
-      <div className="flex flex-col justify-center items-center h-48 gap-3">
-        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
-        <p className="text-sm text-gray-500 font-medium">Restoring session...</p>
+      <div className="flex flex-col justify-center items-center h-20 gap-2">
+        <Loader2 className="animate-spin text-green-600 w-5 h-5" />
+      </div>
+    );
+  }
+
+  // --- COLLAPSED VIEW (Summary) ---
+  if (collapsed) {
+    const selectedAddress = addresses?.find((a) => a.id === selectedId);
+    return (
+      <div className="flex items-start justify-between">
+        {selectedAddress ? (
+           <div className="text-sm">
+             <p className="font-bold text-gray-800">{selectedAddress.address_line}</p>
+             <p className="text-gray-600">{selectedAddress.city}, {selectedAddress.state} {selectedAddress.postal_code}</p>
+             <p className="text-gray-600">{selectedAddress.country}</p>
+             <p className="text-gray-500 mt-1">Phone: {selectedAddress.phone_number}</p>
+           </div>
+        ) : (
+          <p className="text-sm text-red-500">No address selected.</p>
+        )}
+        
+        {onEdit && (
+          <Button variant="link" onClick={onEdit} className="text-green-700 font-semibold p-0 h-auto">
+            Change
+          </Button>
+        )}
       </div>
     );
   }
@@ -72,15 +98,6 @@ export default function StepAddress({ onNext }: StepAddressProps) {
     onNext();
   };
   
-  if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-48 gap-3">
-        <Loader2 className="animate-spin text-green-600 w-8 h-8" />
-        <p className="text-sm text-gray-500 font-medium">Loading your addresses...</p>
-      </div>
-    );
-  }
-
   if (isError) {
     const isAuthError = (error as any)?.response?.status === 401;
     return (
@@ -117,16 +134,16 @@ export default function StepAddress({ onNext }: StepAddressProps) {
   }
 
   return (
-    <div className="bg-white border rounded-2xl shadow-sm p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Delivery Address</h2>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-base font-medium text-gray-500">Your Addresses</h3>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-xs"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Add New
         </Button>
       </div>
@@ -139,95 +156,110 @@ export default function StepAddress({ onNext }: StepAddressProps) {
               key={addr.id}
               onClick={() => handleSelect(addr.id)}
               className={`border rounded-xl p-4 cursor-pointer transition-all ${
-                selectedId === addr.id ? "border-black bg-gray-50" : "border-gray-200"
+                selectedId === addr.id ? "border-green-600 bg-green-50" : "border-gray-200 hover:border-green-300"
               }`}
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-medium">{addr.address_line}</p>
+                  <p className="font-bold text-gray-800">{addr.address_line}</p>
                   <p className="text-sm text-gray-500">
                     {addr.city}, {addr.state}, {addr.country}
                   </p>
-                  <p className="text-sm text-gray-400">📞 {addr.phone_number}</p>
+                  <p className="text-xs text-gray-400 mt-1">📞 {addr.phone_number}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={deleting}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteAddress(addr.id);
-                  }}
-                >
-                  <Trash2 size={16} className="text-red-500" />
-                </Button>
+                <div className="flex flex-col gap-2">
+                   {selectedId === addr.id && <span className="text-xs font-bold text-green-700 bg-white px-2 py-1 rounded-md border border-green-200">Selected</span>}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled={deleting}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteAddress(addr.id);
+                      }}
+                      className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-sm mb-4">
+        <p className="text-gray-500 text-sm italic">
           No saved address yet. Please add one below.
         </p>
       )}
 
       {/* Add New Address Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 mt-6">
+        <motion.form 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: "auto" }}
+            className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100"
+            onSubmit={handleSubmit}
+        >
+          <div className="col-span-2">
+            <h4 className="font-semibold text-sm mb-2">New Address Details</h4>
+          </div>
           <input
             name="address_line"
-            placeholder="Address"
+            placeholder="Address Line"
             onChange={handleChange}
-            className="border p-2 rounded-md col-span-2"
+            className="border p-2 rounded-lg text-sm col-span-2 focus:ring-2 ring-green-500 outline-none"
             required
           />
           <input
             name="city"
             placeholder="City"
             onChange={handleChange}
-            className="border p-2 rounded-md"
+            className="border p-2 rounded-lg text-sm focus:ring-2 ring-green-500 outline-none"
             required
           />
           <input
             name="state"
             placeholder="State"
             onChange={handleChange}
-            className="border p-2 rounded-md"
+            className="border p-2 rounded-lg text-sm focus:ring-2 ring-green-500 outline-none"
             required
           />
           <input
             name="country"
             placeholder="Country"
             onChange={handleChange}
-            className="border p-2 rounded-md"
+            className="border p-2 rounded-lg text-sm focus:ring-2 ring-green-500 outline-none"
             required
           />
           <input
             name="postal_code"
             placeholder="Postal Code"
             onChange={handleChange}
-            className="border p-2 rounded-md"
+            className="border p-2 rounded-lg text-sm focus:ring-2 ring-green-500 outline-none"
             required
           />
           <input
             name="phone_number"
             placeholder="Phone Number"
             onChange={handleChange}
-            className="border p-2 rounded-md"
+            className="border p-2 rounded-lg text-sm focus:ring-2 ring-green-500 outline-none"
             required
           />
-          <div className="col-span-2 flex justify-end mt-4">
-            <Button type="submit" disabled={isPending}>
+          <div className="col-span-2 flex justify-end gap-2 mt-2">
+             <Button type="button" variant="ghost" onClick={() => setShowForm(false)} className="text-gray-500">Cancel</Button>
+            <Button type="submit" disabled={isPending} className="bg-green-700 hover:bg-green-800 text-white">
               Save Address
             </Button>
           </div>
-        </form>
+        </motion.form>
       )}
 
       {/* Continue Button */}
       {addresses && addresses.length > 0 && (
-        <div className="flex justify-end mt-6">
-          <Button onClick={handleContinue}>Continue to Payment</Button>
+        <div className="pt-4 border-t border-gray-100">
+          <Button onClick={handleContinue} className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg shadow-sm">
+             Use this address
+          </Button>
         </div>
       )}
     </div>

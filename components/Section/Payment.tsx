@@ -11,9 +11,11 @@ import { usePaymentMethods } from "@/hook/queries";
 interface StepPaymentProps {
   onNext: () => void;
   onBack: () => void;
+  collapsed?: boolean;
+  onEdit?: () => void;
 }
 
-export default function StepPayment({ onNext, onBack }: StepPaymentProps) {
+export default function StepPayment({ onNext, onBack, collapsed = false, onEdit }: StepPaymentProps) {
   const { data: methods, isLoading } = usePaymentMethods();
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -38,28 +40,56 @@ export default function StepPayment({ onNext, onBack }: StepPaymentProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <Loader2 className="animate-spin text-gray-400" />
+      <div className="flex justify-center items-center h-20">
+        <Loader2 className="animate-spin text-gray-400 w-5 h-5" />
+      </div>
+    );
+  }
+
+  // --- COLLAPSED VIEW (Summary) ---
+  if (collapsed) {
+    const selectedMethod = methods?.find((m) => m.id === selected);
+    return (
+      <div className="flex items-start justify-between">
+         {selectedMethod ? (
+            <div className="flex items-center gap-4">
+              {selectedMethod.provider?.toLowerCase() === "paystack" && (
+                  <Image src="/icons/paystack.svg" alt="Paystack" width={30} height={30} />
+              )}
+               <div>
+                  <p className="font-bold text-gray-800 text-sm">{selectedMethod.name}</p>
+                  <p className="text-xs text-gray-500">Provider: {selectedMethod.provider}</p>
+               </div>
+            </div>
+         ) : (
+            <p className="text-sm text-red-500">No payment method selected.</p>
+         )}
+
+         {onEdit && (
+          <Button variant="link" onClick={onEdit} className="text-green-700 font-semibold p-0 h-auto">
+            Change
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="bg-white border rounded-2xl shadow-sm p-8">
-      <h2 className="text-xl font-semibold mb-6">Select Payment Method</h2>
+    <div className="space-y-6">
+      <h2 className="text-base font-medium text-gray-500">Select Payment Method</h2>
 
       {methods && methods.length > 0 ? (
         <div className="grid gap-3">
           {methods.map((method) => (
             <motion.label
               key={method.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleSelect(method.id)}
               className={`border rounded-xl p-4 cursor-pointer transition-all flex justify-between items-center ${
                 selected === method.id
-                  ? "border-black bg-gray-50 shadow-sm"
-                  : "border-gray-200 hover:border-gray-400"
+                  ? "border-green-600 bg-green-50 shadow-sm"
+                  : "border-gray-200 hover:border-green-400"
               }`}
             >
               <div className="flex items-center gap-4">
@@ -72,42 +102,36 @@ export default function StepPayment({ onNext, onBack }: StepPaymentProps) {
                 )}
 
                 <div>
-                  <p className="font-medium">{method.name}</p>
-                  <p className="text-sm text-gray-500 capitalize">
-                    Provider: {method.provider}
+                  <p className="font-bold text-gray-900">{method.name}</p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {method.provider}
                   </p>
                   {method.account_number && (
-                    <p className="text-sm text-gray-400">Account: {method.account_number}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Account: {method.account_number}</p>
                   )}
                 </div>
               </div>
 
-              <input
-                type="radio"
-                name="payment"
-                value={method.id}
-                checked={selected === method.id}
-                readOnly
-                className="w-4 h-4 accent-black"
-              />
+              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                 selected === method.id ? "border-green-600 bg-green-600" : "border-gray-300"
+              }`}>
+                 {selected === method.id && <div className="w-2 h-2 bg-white rounded-full" />}
+              </div>
             </motion.label>
           ))}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-6 border rounded-xl">
+        <div className="text-center text-gray-500 py-6 border rounded-xl border-dashed">
           <p>No payment methods available.</p>
-          <p className="text-sm mt-2">
+          <p className="text-xs mt-1">
             Please contact support or add one in your profile.
           </p>
         </div>
       )}
 
-      <div className="flex justify-between mt-8">
-        <Button variant="outline" onClick={onBack}>
-          Go Back
-        </Button>
-        <Button onClick={handleContinue} disabled={isLoading}>
-          Continue
+      <div className="pt-4 border-t border-gray-100">
+        <Button onClick={handleContinue} disabled={isLoading} className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg shadow-sm">
+          Use this payment method
         </Button>
       </div>
     </div>
