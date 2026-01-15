@@ -1,0 +1,32 @@
+
+> front_commerse@0.1.0 build
+> next build --turbopack
+
+Γû▓ Next.js 16.1.1 (Turbopack)
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./components/Section/Checkout.tsx:1:10
+Ecmascript file had an error
+> 1 | import { useState } from "react";
+    |          ^^^^^^^^
+  2 | import { motion, AnimatePresence } from "framer-motion";
+  3 | import StepAddress from "./Adress";
+  4 | import StepPayment from "./Payment";
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+
+
+Import trace:
+  Server Component:
+    ./components/Section/Checkout.tsx
+    ./app/checkout/page.tsx
+
+
+    at <unknown> (./components/Section/Checkout.tsx:1:10)
