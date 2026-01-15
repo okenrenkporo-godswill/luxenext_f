@@ -68,49 +68,63 @@ export default function StepSummary({ onBack }: StepSummaryProps) {
 
           {items.length > 0 ? (
             <>
-              <div className="divide-y divide-gray-100">
-                {items.map((item) => (
-                  <div key={item.product_id} className="flex justify-between items-center py-4">
-                    <div className="flex items-center gap-4">
-                      {item.image && (
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          width={60}
-                          height={60}
-                          className="rounded-lg object-cover border"
-                        />
-                      )}
-                      <div>
-                        <p className="font-medium text-gray-800">{item.name}</p>
-                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                      </div>
+              <div className="space-y-4">
+                 {/* Group Items by Delivery Option (Simulation) */}
+                 <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/30">
+                     <h3 className="font-bold text-sm text-green-700 mb-3 uppercase tracking-wide">Delivery 1 of 1</h3>
+                     <div className="divide-y divide-gray-100">
+                        {items.map((item) => (
+                           <div key={item.product_id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                              <div className="relative w-20 h-20 flex-shrink-0 border rounded-lg bg-white p-1">
+                                 {item.image ? (
+                                    <Image src={item.image} alt={item.name} fill className="object-contain rounded-md" />
+                                 ) : (
+                                    <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-400">No Img</div>
+                                 )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                 <p className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug">{item.name}</p>
+                                 <p className="text-xs text-green-600 mt-1 font-medium">In Stock</p>
+                                 <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+                                 <p className="font-bold text-gray-900 mt-2">${(item.price * item.quantity).toFixed(2)}</p>
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                 </div>
+
+                 {/* Order Totals */}
+                 <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                    <div className="flex justify-between text-sm text-gray-600">
+                       <span>Subtotal ({items.length} items)</span>
+                       <span>${total.toFixed(2)}</span>
                     </div>
-                    <span className="font-semibold text-gray-700">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
+                    <div className="flex justify-between text-sm text-gray-600">
+                       <span>Shipping</span>
+                       <span className="text-green-600 font-medium">Free</span>
+                    </div>
+                     <div className="flex justify-between items-center font-bold text-lg pt-2 border-t border-gray-200 mt-2 text-gray-900">
+                       <span>Order Total</span>
+                       <span className="text-red-700">${total.toFixed(2)}</span>
+                    </div>
+                 </div>
+
+                 <Button
+                    onClick={handleConfirmOrder}
+                    disabled={isProcessing}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold h-12 rounded-lg shadow-sm"
+                  >
+                    {isProcessing ? (
+                       <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                       "Place Your Order"
+                    )}
+                  </Button>
+                   <div className="text-center">
+                     <Button variant="link" onClick={onBack} className="text-sm text-blue-600 hover:underline p-0 h-auto">
+                        Back to Payment
+                     </Button>
                   </div>
-                ))}
-              </div>
-
-              <div className="flex justify-between items-center font-semibold text-lg mt-6 border-t pt-4">
-                <span>Total</span>
-                <span className="text-black">${total.toFixed(2)}</span>
-              </div>
-
-              <div className="flex justify-between mt-8 gap-4">
-                <Button variant="outline" onClick={onBack} className="w-1/2 hover:bg-gray-100">
-                  Go Back
-                </Button>
-
-                <Button
-                  onClick={handleConfirmOrder}
-                  disabled={isProcessing} // ✅ disable while processing
-                  className="w-1/2 bg-black text-white hover:bg-gray-800 flex justify-center items-center gap-2"
-                >
-                  {isProcessing && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isProcessing ? "Processing..." : "Confirm Order"}
-                </Button>
               </div>
             </>
           ) : (

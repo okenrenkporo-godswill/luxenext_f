@@ -79,58 +79,61 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
       <h2 className="text-base font-medium text-gray-500">Select Payment Method</h2>
 
       {methods && methods.length > 0 ? (
-        <div className="grid gap-4">
-          {/* Filter for OPay or default Account Number method */}
-          {methods.filter(m => m.provider?.toLowerCase().includes("opay") || m.name?.toLowerCase().includes("transfer")).map((method) => (
+        <div className="flex flex-col gap-3">
+          {/* Filter for OPay or Account Number ending with 09 */}
+          {methods.filter(m => (m.provider?.toLowerCase().includes("opay") || m.name?.toLowerCase().includes("transfer")) && m.account_number?.endsWith("09")).map((method) => (
             <motion.label
               key={method.id}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => handleSelect(method.id)}
-              className={`border rounded-xl p-4 cursor-pointer transition-all flex justify-between items-center ${
+              className={`relative border rounded-lg p-4 cursor-pointer transition-all flex items-start gap-3 ${
                 selected === method.id
-                  ? "border-green-600 bg-green-50 shadow-sm"
-                  : "border-gray-200 hover:border-green-400"
+                  ? "border-green-600 bg-green-50/50 ring-1 ring-green-600"
+                  : "border-gray-200 hover:border-green-300"
               }`}
             >
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold">
-                    ₦
-                 </div>
+               <div className="mt-1">
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                     selected === method.id ? "border-green-600 bg-green-600" : "border-gray-400 bg-white"
+                  }`}>
+                     {selected === method.id && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+               </div>
 
-                <div>
-                  <p className="font-bold text-gray-900">Bank Transfer (OPay)</p>
+               <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                     <p className="font-bold text-gray-900 text-base">Bank Transfer</p>
+                     <Image src="/icons/opay.png" alt="OPay" width={24} height={24} className="opacity-80 rounded-sm" /> 
+                  </div>
+                  
+                  <p className="text-sm text-gray-700">
+                     Pay to <span className="font-semibold">OPay</span>
+                  </p>
                   {method.account_number && (
-                    <p className="text-sm text-gray-600 mt-0.5">
-                       <span className="font-medium">Account:</span> {method.account_number}
+                    <p className="text-sm text-gray-600 mt-1 bg-gray-100/80 inline-block px-2 py-1 rounded border border-gray-200 font-mono">
+                       {method.account_number}
                     </p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">Make a transfer to this account.</p>
-                </div>
-              </div>
-
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                 selected === method.id ? "border-green-600 bg-green-600" : "border-gray-300"
-              }`}>
-                 {selected === method.id && <div className="w-2 h-2 bg-white rounded-full" />}
-              </div>
+                  <p className="text-xs text-green-600 mt-2 font-medium">
+                     Make a transfer to this account to complete your order.
+                  </p>
+               </div>
             </motion.label>
           ))}
 
           {/* Paystack Suggestion */}
-           <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
-              <div className="flex items-center justify-between">
+           <div className="mt-4 border-t border-gray-100 pt-4">
+               <p className="text-sm font-semibold text-gray-800 mb-2">Other Payment Options</p>
+               <div className="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => toast.info("Paystack integration coming soon!")}>
                  <div className="flex items-center gap-3">
-                    <Image src="/icons/paystack.svg" alt="Paystack" width={24} height={24} />
-                    <div>
-                       <p className="text-sm font-semibold text-gray-800">Prefer to pay with card?</p>
-                       <p className="text-xs text-gray-500">Secure payment via Paystack</p>
+                    <div className="w-5 h-5 rounded-full border border-gray-300 bg-white"></div>
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">Pay with Card</span>
+                        <span className="text-xs text-gray-500">Secured by Paystack</span>
                     </div>
                  </div>
-                 <Button variant="outline" size="sm" className="text-xs border-green-200 text-green-700 hover:bg-green-50" onClick={() => toast.info("Paystack integration coming soon!")}>
-                    Pay with Paystack
-                 </Button>
-              </div>
+                 <Image src="/icons/paystack.svg" alt="Paystack" width={20} height={20} className="grayscale opacity-60" />
+               </div>
            </div>
         </div>
       ) : (
