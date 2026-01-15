@@ -79,8 +79,9 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
       <h2 className="text-base font-medium text-gray-500">Select Payment Method</h2>
 
       {methods && methods.length > 0 ? (
-        <div className="grid gap-3">
-          {methods.map((method) => (
+        <div className="grid gap-4">
+          {/* Filter for OPay or default Account Number method */}
+          {methods.filter(m => m.provider?.toLowerCase().includes("opay") || m.name?.toLowerCase().includes("transfer")).map((method) => (
             <motion.label
               key={method.id}
               whileHover={{ scale: 1.01 }}
@@ -93,22 +94,18 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
               }`}
             >
               <div className="flex items-center gap-4">
-                {/* Optional provider icon */}
-                {method.provider?.toLowerCase() === "paystack" && (
-                  <Image src="/icons/paystack.svg" alt="Paystack" width={40} height={40} />
-                )}
-                {method.provider?.toLowerCase() === "flutterwave" && (
-                  <Image src="/icons/flutterwave.svg" alt="Flutterwave" width={40} height={40} />
-                )}
+                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold">
+                    ₦
+                 </div>
 
                 <div>
-                  <p className="font-bold text-gray-900">{method.name}</p>
-                  <p className="text-xs text-gray-500 capitalize">
-                    {method.provider}
-                  </p>
+                  <p className="font-bold text-gray-900">Bank Transfer (OPay)</p>
                   {method.account_number && (
-                    <p className="text-xs text-gray-400 mt-0.5">Account: {method.account_number}</p>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                       <span className="font-medium">Account:</span> {method.account_number}
+                    </p>
                   )}
+                  <p className="text-xs text-gray-400 mt-1">Make a transfer to this account.</p>
                 </div>
               </div>
 
@@ -119,6 +116,22 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
               </div>
             </motion.label>
           ))}
+
+          {/* Paystack Suggestion */}
+           <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
+              <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-3">
+                    <Image src="/icons/paystack.svg" alt="Paystack" width={24} height={24} />
+                    <div>
+                       <p className="text-sm font-semibold text-gray-800">Prefer to pay with card?</p>
+                       <p className="text-xs text-gray-500">Secure payment via Paystack</p>
+                    </div>
+                 </div>
+                 <Button variant="outline" size="sm" className="text-xs border-green-200 text-green-700 hover:bg-green-50" onClick={() => toast.info("Paystack integration coming soon!")}>
+                    Pay with Paystack
+                 </Button>
+              </div>
+           </div>
         </div>
       ) : (
         <div className="text-center text-gray-500 py-6 border rounded-xl border-dashed">
