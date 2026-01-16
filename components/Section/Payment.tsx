@@ -124,9 +124,31 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
           {/* Paystack Suggestion */}
            <div className="mt-4 border-t border-gray-100 pt-4">
                <p className="text-sm font-semibold text-gray-800 mb-2">Other Payment Options</p>
-               <div className="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => toast.info("Paystack integration coming soon!")}>
+               <div 
+                 className="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors" 
+                 onClick={() => {
+                    const paystackMethod = methods.find(m => m.provider?.toLowerCase() === "paystack");
+                    if (paystackMethod) {
+                        handleSelect(paystackMethod.id);
+                        // Optional: Auto-advance or just select? 
+                        // Let's just select it and let the user click "Use this payment method" 
+                        // OR we can auto-advance if that is the UX preference. 
+                        // Given the button text "Pay with Paystack" from previous context, user might expect action.
+                        // But sticking to selection for safety unless requested otherwise.
+                        toast.success("Paystack selected. Click continue to proceed.");
+                    } else {
+                        toast.error("Paystack is currently unavailable.");
+                    }
+                 }}
+               >
                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full border border-gray-300 bg-white"></div>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                        methods.find(m => m.provider?.toLowerCase() === "paystack")?.id === selected 
+                        ? "border-green-600 bg-green-600" 
+                        : "border-gray-300 bg-white"
+                    }`}>
+                        {methods.find(m => m.provider?.toLowerCase() === "paystack")?.id === selected && <div className="w-2 h-2 bg-white rounded-full" />}
+                    </div>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">Pay with Card</span>
                         <span className="text-xs text-gray-500">Secured by Paystack</span>

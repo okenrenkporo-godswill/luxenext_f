@@ -312,8 +312,8 @@ export const useCheckout = () => {
 
       // Example: redirect based on payment method
       if (data.payment_method.toLowerCase() === "paystack") {
-        // You can navigate to payment page here
-        window.location.href = `/payment?ref=${data.order_reference}`;
+        // Navigate to payment page with Order ID
+        window.location.href = `/payment?id=${data.id}`;
       } else {
         toast.info(`Payment awaiting confirmation: ${data.payment_method}`);
       }
