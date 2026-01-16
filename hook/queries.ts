@@ -311,7 +311,11 @@ export const useCheckout = () => {
       console.log("Order:", data);
 
       // Example: redirect based on payment method
-      if (data.payment_method.toLowerCase() === "paystack") {
+      // Check if payment method involves Paystack (by name or provider)
+      const isPaystack = data.payment_method.toLowerCase().includes("paystack") ||
+        data.payment_method.toLowerCase().includes("card");
+
+      if (isPaystack) {
         // Navigate to payment page with Order ID
         window.location.href = `/payment?id=${data.id}`;
       } else {

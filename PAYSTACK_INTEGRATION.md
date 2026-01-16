@@ -21,15 +21,20 @@ npm install react-paystack
 
 ## 2. Implementation Details
 
-### A. dedicated Payment Page
+### A. Dedicated Payment Page
 **File:** `app/payment/page.tsx`
 -   **Route:** `/payment`
 -   **Query Param:** `?id={order_id}`
--   **Functionality:**
-    -   It fetches the order details using the `order_id`.
-    -   It verifies the order status (preventing double payment).
-    -   It displays a secure payment summary card.
-    -   It renders the "Pay Now" button which triggers the Paystack popup.
+-   **Structure:**
+    -   Uses `next/dynamic` with `ssr: false` to load the payment form. This prevents "window is not defined" errors during build, as the Paystack library requires a browser environment.
+    -   Displays a loading spinner while the component initializes.
+
+**File:** `components/Payment/PaystackPayment.tsx` (Client Component)
+-   Contains the actual logic:
+    -   Fetches order details.
+    -   Verifies order status.
+    -   Displays secure payment summary.
+    -   Renders "Pay Now" button triggering the Paystack popup.
 
 ### B. Payment Method Selection
 **File:** `components/Section/Payment.tsx`

@@ -127,27 +127,45 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
                <div 
                  className="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors" 
                  onClick={() => {
-                    const paystackMethod = methods.find(m => m.provider?.toLowerCase() === "paystack");
-                    if (paystackMethod) {
+                     // Try to find Paystack by provider OR name (case-insensitive)
+                     const paystackMethod = methods.find(m => 
+                        m.provider?.toLowerCase().includes("paystack") || 
+                        m.name?.toLowerCase().includes("paystack") ||
+                        m.name?.toLowerCase().includes("card")
+                     );
+
+                     if (paystackMethod) {
                         handleSelect(paystackMethod.id);
-                        // Optional: Auto-advance or just select? 
-                        // Let's just select it and let the user click "Use this payment method" 
-                        // OR we can auto-advance if that is the UX preference. 
-                        // Given the button text "Pay with Paystack" from previous context, user might expect action.
-                        // But sticking to selection for safety unless requested otherwise.
-                        toast.success("Paystack selected. Click continue to proceed.");
-                    } else {
-                        toast.error("Paystack is currently unavailable.");
-                    }
-                 }}
+                        toast.success("Paystack selected. Click 'Use this payment method' to proceed.");
+                     } else {
+                         // Fallback: If no dedicated Paystack method exists, warn the user.
+                         // This is crucial during integration if the backend data isn't set up yet.
+                        toast.error("Paystack payment method not found in system configuration. Please check Admin settings.");
+                        console.error("Available methods:", methods);
+                     }
+                  }}
                >
                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                        methods.find(m => m.provider?.toLowerCase() === "paystack")?.id === selected 
+                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                         (() => {
+                            const paystackMethod = methods.find(m => 
+                                m.provider?.toLowerCase().includes("paystack") || 
+                                m.name?.toLowerCase().includes("paystack") ||
+                                m.name?.toLowerCase().includes("card")
+                            );
+                            return paystackMethod?.id === selected;
+                         })()
                         ? "border-green-600 bg-green-600" 
                         : "border-gray-300 bg-white"
                     }`}>
-                        {methods.find(m => m.provider?.toLowerCase() === "paystack")?.id === selected && <div className="w-2 h-2 bg-white rounded-full" />}
+                        {(() => {
+                           const paystackMethod = methods.find(m => 
+                                m.provider?.toLowerCase().includes("paystack") || 
+                                m.name?.toLowerCase().includes("paystack") ||
+                                m.name?.toLowerCase().includes("card")
+                            );
+                           return paystackMethod?.id === selected;
+                        })() && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">Pay with Card</span>
