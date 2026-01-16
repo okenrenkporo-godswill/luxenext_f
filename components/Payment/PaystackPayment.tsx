@@ -2,12 +2,13 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useOrder } from "@/hook/queries";
-import { usePaystackPayment } from "react-paystack";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
+import PaystackPop from "@paystack/inline-js";
+import { initializePaystackTransaction } from "@/lib/api";
 
 export default function PaystackPayment() {
   const searchParams = useSearchParams();
@@ -15,23 +16,38 @@ export default function PaystackPayment() {
   const router = useRouter();
 
   const { data: order, isLoading, error } = useOrder(id ? Number(id) : null);
+  const [isInitializing, setIsInitializing] = useState(false);
 
-  const config = {
-    reference: order?.order_reference || new Date().getTime().toString(),
-    email: order?.user?.email || "",
-    amount: order ? Math.round(order.total_amount * 100) : 0, // Amount is in kobo
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
-  };
+  const handlePayment = async () => {
+    if (!order) {
+      toast.error("Order not found");
+      return;
+    }
 
-  const initializePayment = usePaystackPayment(config);
-
-  const onSuccess = (reference: any) => {
-    toast.success("Payment successful! Reference: " + reference.reference);
-    router.push("/orders"); 
-  };
-
-  const onClose = () => {
-    toast.info("Payment cancelled.");
+    setIsInitializing(true);
+    try {
+      // Call backend to initialize transaction
+      const response = await initializePaystackTransaction({ order_id: order.id });
+      
+      // Initialize Paystack Popup
+      const popup = new PaystackPop();
+      
+      // Resume transaction with access_code from backend
+      popup.resumeTransaction(response.access_code, {
+        onSuccess: (transaction) => {
+          toast.success("Payment successful! Reference: " + transaction.reference);
+          router.push("/orders");
+        },
+        onClose: () => {
+          toast.info("Payment cancelled.");
+          setIsInitializing(false);
+        },
+      });
+    } catch (err: any) {
+      console.error("Payment initialization error:", err);
+      toast.error(err.response?.data?.detail || "Failed to initialize payment");
+      setIsInitializing(false);
+    }
   };
 
   if (isLoading) {
@@ -91,11 +107,17 @@ export default function PaystackPayment() {
 
         <Button
           className="w-full bg-green-600 py-6 text-lg font-bold hover:bg-green-700"
-          onClick={() => {
-              initializePayment({onSuccess, onClose})
-          }}
+          onClick={handlePayment}
+          disabled={isInitializing}
         >
-          Pay Now
+          {isInitializing ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Initializing...
+            </>
+          ) : (
+            "Pay Now"
+          )}
         </Button>
 
         <p className="mt-6 text-center text-xs text-gray-400">

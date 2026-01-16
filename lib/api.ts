@@ -298,6 +298,24 @@ export const rejectManualPayment = async (order_id: number, reason: string) => {
 };
 
 // ===============================
+// 💳 Paystack Integration
+// ===============================
+export interface PaystackInitializePayload {
+  order_id: number;
+}
+
+export interface PaystackInitializeResponse {
+  access_code: string;
+  reference: string;
+  authorization_url: string;
+}
+
+export const initializePaystackTransaction = async (data: PaystackInitializePayload): Promise<PaystackInitializeResponse> => {
+  const res = await apiClient.post<ApiResponse<PaystackInitializeResponse>>("/payment/paystack/initialize/", data);
+  return res.data.data;
+};
+
+// ===============================
 // 🧾 User Orders Types & Functions
 // ===============================
 export interface OrderItem {
