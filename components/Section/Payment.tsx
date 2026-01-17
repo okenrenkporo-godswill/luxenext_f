@@ -54,7 +54,7 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
          {selectedMethod ? (
             <div className="flex items-center gap-4">
               {selectedMethod.provider?.toLowerCase() === "paystack" && (
-                  <Image src="/icons/paystack.svg" alt="Paystack" width={30} height={30} />
+                  <Image src="paystack.jpg" alt="Paystack" width={30} height={30} />
               )}
                <div>
                   <p className="font-bold text-gray-800 text-sm">{selectedMethod.name}</p>
@@ -172,7 +172,7 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
                         <span className="text-xs text-gray-500">Secured by Paystack</span>
                     </div>
                  </div>
-                 <Image src="/icons/paystack.svg" alt="Paystack" width={20} height={20} className="grayscale opacity-60" />
+                 <Image src="paystack.jpg" alt="Paystack" width={20} height={20} className="grayscale opacity-60" />
                </div>
            </div>
         </div>

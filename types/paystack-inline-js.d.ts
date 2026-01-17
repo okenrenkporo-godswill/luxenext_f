@@ -9,6 +9,7 @@ declare module '@paystack/inline-js' {
     }
 
     export interface PaystackPopupOptions {
+        key?: string;
         onSuccess?: (transaction: PaystackTransaction) => void;
         onClose?: () => void;
     }

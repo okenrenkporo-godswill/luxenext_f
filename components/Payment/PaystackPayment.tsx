@@ -34,6 +34,7 @@ export default function PaystackPayment() {
       
       // Resume transaction with access_code from backend
       popup.resumeTransaction(response.access_code, {
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
         onSuccess: (transaction) => {
           toast.success("Payment successful! Reference: " + transaction.reference);
           router.push("/orders");
