@@ -26,8 +26,10 @@ export default function PaystackPayment() {
 
     setIsInitializing(true);
     try {
+      console.log("Step 1: Calling Backend Initialize...");
       // Call backend to initialize transaction
       const response = await initializePaystackTransaction({ order_id: order.id });
+      console.log("Step 2: Backend Success, Response:", response);
       
       const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
       if (!paystackKey) {
@@ -37,27 +39,33 @@ export default function PaystackPayment() {
           return;
       }
 
-      console.log("Initializing Paystack with key:", paystackKey.slice(0, 7) + "...");
+      console.log("Step 3: Initializing Popup with key:", paystackKey.slice(0, 10) + "...");
 
       
       // Initialize Paystack Popup with key
       const popup = new PaystackPop({ key: paystackKey });
       
+      console.log("Step 4: Resuming transaction with code:", response.access_code);
       // Resume transaction with access_code from backend
       popup.resumeTransaction(response.access_code, {
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+        key: paystackKey,
         onSuccess: (transaction) => {
+          console.log("Step 5: Payment Success!", transaction);
           toast.success("Payment successful! Reference: " + transaction.reference);
           router.push("/orders");
         },
         onClose: () => {
+          console.log("Step 5: Payment Closed/Cancelled");
           toast.info("Payment cancelled.");
           setIsInitializing(false);
         },
       });
     } catch (err: any) {
-      console.error("Payment initialization error:", err);
-      toast.error(err.response?.data?.detail || "Failed to initialize payment");
+      console.error("CRITICAL: Payment initialization error:", err);
+      if (err.response) {
+          console.error("BACKEND ERROR DATA:", err.response.data);
+      }
+      toast.error(err.response?.data?.detail || err.response?.data?.message || "Failed to initialize payment");
       setIsInitializing(false);
     }
   };
