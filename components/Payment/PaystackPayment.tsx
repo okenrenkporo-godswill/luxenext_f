@@ -33,22 +33,24 @@ export default function PaystackPayment() {
       
       const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
       if (!paystackKey) {
-          console.error("Paystack public key is missing!");
+          console.error("DEBUG: Paystack public key is missing from process.env!");
           toast.error("Payment configuration error: Public Key missing.");
           setIsInitializing(false);
           return;
       }
 
-      console.log("Step 3: Initializing Popup with key:", paystackKey.slice(0, 10) + "...");
+      const maskedKey = `${paystackKey.slice(0, 7)}...${paystackKey.slice(-4)}`;
+      console.log("Step 3: Initializing Popup with key:", maskedKey);
 
       
       // Initialize Paystack Popup with key
+      // According to @paystack/inline-js modern usage, passing the key in the constructor 
+      // is the most stable way to ensure it's used for all subsequent calls.
       const popup = new PaystackPop({ key: paystackKey });
       
       console.log("Step 4: Resuming transaction with code:", response.access_code);
       // Resume transaction with access_code from backend
       popup.resumeTransaction(response.access_code, {
-        key: paystackKey,
         onSuccess: (transaction) => {
           console.log("Step 5: Payment Success!", transaction);
           toast.success("Payment successful! Reference: " + transaction.reference);
@@ -65,7 +67,9 @@ export default function PaystackPayment() {
       if (err.response) {
           console.error("BACKEND ERROR DATA:", err.response.data);
       }
-      toast.error(err.response?.data?.detail || err.response?.data?.message || "Failed to initialize payment");
+      // If the error message is "Please enter a valid Key", it's likely a mismatch.
+      const errorMsg = err.response?.data?.message || err.message || "Failed to initialize payment";
+      toast.error(errorMsg);
       setIsInitializing(false);
     }
   };
