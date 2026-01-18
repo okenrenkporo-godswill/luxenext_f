@@ -15,7 +15,7 @@ declare module '@paystack/inline-js' {
     }
 
     export default class PaystackPop {
-        constructor();
+        constructor(options?: { key?: string });
         resumeTransaction(accessCode: string, options?: PaystackPopupOptions): void;
         newTransaction(options: any): void;
     }

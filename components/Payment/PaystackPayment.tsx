@@ -40,8 +40,8 @@ export default function PaystackPayment() {
       console.log("Initializing Paystack with key:", paystackKey.slice(0, 7) + "...");
 
       
-      // Initialize Paystack Popup
-      const popup = new PaystackPop();
+      // Initialize Paystack Popup with key
+      const popup = new PaystackPop({ key: paystackKey });
       
       // Resume transaction with access_code from backend
       popup.resumeTransaction(response.access_code, {
