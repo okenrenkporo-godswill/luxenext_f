@@ -29,6 +29,17 @@ export default function PaystackPayment() {
       // Call backend to initialize transaction
       const response = await initializePaystackTransaction({ order_id: order.id });
       
+      const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+      if (!paystackKey) {
+          console.error("Paystack public key is missing!");
+          toast.error("Payment configuration error: Public Key missing.");
+          setIsInitializing(false);
+          return;
+      }
+
+      console.log("Initializing Paystack with key:", paystackKey.slice(0, 7) + "...");
+
+      
       // Initialize Paystack Popup
       const popup = new PaystackPop();
       
