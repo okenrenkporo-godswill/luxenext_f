@@ -315,6 +315,15 @@ export const initializePaystackTransaction = async (data: PaystackInitializePayl
   return res.data.data;
 };
 
+export interface PaystackVerifyPayload {
+  reference: string;
+}
+
+export const verifyPaystackPayment = async (data: PaystackVerifyPayload) => {
+  const res = await apiClient.post<ApiResponse<any>>("/payment/paystack/verify/", data);
+  return res.data.data;
+};
+
 // ===============================
 // 🧾 User Orders Types & Functions
 // ===============================
@@ -544,4 +553,19 @@ export const createWishlistItem = async (data: WishlistCreatePayload): Promise<W
 export const deleteWishlistItem = async (wishlist_id: number): Promise<{ message: string }> => {
   const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/wishlist/${wishlist_id}/`);
   return res.data.data;
+};
+
+// ===============================
+// 🔐 Password Management
+// ===============================
+export const forgotPassword = async (email: string) => {
+  const res = await apiClient.post("/password/forgot-password", null, { params: { email } });
+  return res.data;
+};
+
+export const resetPassword = async (token: string, new_password: string) => {
+  const res = await apiClient.post("/password/reset-password", null, {
+    params: { token, new_password }
+  });
+  return res.data;
 };

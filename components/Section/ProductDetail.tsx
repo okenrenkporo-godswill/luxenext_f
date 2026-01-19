@@ -41,7 +41,7 @@ export default function ProductDetail({ product, onAddToCart }: ProductDetailPro
       {/* Right: Product Info */}
       <div className="flex flex-col justify-start">
         <h1 className="text-3xl font-bold">{product.name}</h1>
-        <p className="mt-2 text-2xl text-red-600 font-semibold">${product.price}</p>
+        <p className="mt-2 text-2xl text-red-600 font-semibold">₦{product.price.toLocaleString()}</p>
         <p className="mt-4 text-gray-700">{product.description}</p>
 
         {/* Quantity selector */}

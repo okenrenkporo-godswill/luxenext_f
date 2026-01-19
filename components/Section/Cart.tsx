@@ -78,7 +78,7 @@ export default function DesktopCart() {
             <Image src={item.image || "/placeholder.png"} alt={item.name} width={80} height={80} className="rounded-lg" />
             <div className="flex-1 flex flex-col justify-between h-full">
               <p className="font-semibold">{item.name}</p>
-              <p className="text-gray-600">${item.price.toFixed(2)}</p>
+              <p className="text-gray-600">₦{item.price.toLocaleString()}</p>
               <div className="flex items-center gap-2 mt-1">
                 <Button size="sm" variant="outline" onClick={() => handleDecrease(item)}>-</Button>
                 <span>{item.quantity}</span>
@@ -98,9 +98,9 @@ export default function DesktopCart() {
       </div>
 
       <div className="mt-6 border-t pt-4 flex flex-col gap-2">
-        <div className="flex justify-between"><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
-        <div className="flex justify-between"><span>Shipping:</span><span>${shipping.toFixed(2)}</span></div>
-        <div className="flex justify-between font-bold text-lg"><span>Total:</span><span>${total.toFixed(2)}</span></div>
+        <div className="flex justify-between"><span>Subtotal:</span><span>₦{subtotal.toLocaleString()}</span></div>
+        <div className="flex justify-between"><span>Shipping:</span><span>₦{shipping.toLocaleString()}</span></div>
+        <div className="flex justify-between font-bold text-lg"><span>Total:</span><span>₦{total.toLocaleString()}</span></div>
 
         <Button className="w-full mt-4" onClick={() => router.push("/checkout")}>Checkout</Button>
         <Button variant="destructive" className="w-full mt-2" onClick={handleClear}>Clear Cart</Button>

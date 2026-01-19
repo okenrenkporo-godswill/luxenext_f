@@ -136,6 +136,11 @@ export function Login() {
         </Form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
+          <button type="button" onClick={() => router.push("/forgot-password")} className="text-blue-600 hover:underline">
+            Forgot Password?
+          </button>
+        </p>
+        <p className="mt-2 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
           <button type="button" onClick={() => router.push("/register")} className="font-semibold text-green-600 hover:underline">
             Register

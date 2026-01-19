@@ -52,6 +52,7 @@ export default function AccountPage() {
     { id: "wishlist", label: "Saved Items", icon: Heart, href: "/wishlist" },
     { id: "address", label: "Address Book", icon: MapPin },
     { id: "details", label: "Personal Details", icon: Settings },
+    { id: "security", label: "Security", icon: ShieldCheck },
     { id: "cards", label: "Payment Cards", icon: CreditCard },
   ];
 
@@ -221,6 +222,68 @@ export default function AccountPage() {
                     )}
                  </div>
               </div>
+
+              {/* Security / Change Password View */}
+              {activeTab === "security" && (
+                <div className="max-w-md mx-auto py-8">
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Security Settings</h2>
+                  <p className="text-sm text-gray-500 mb-8">Update your password to keep your account secure.</p>
+                  
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700 block mb-1">New Password</label>
+                        <input 
+                          type="password" 
+                          id="newPassword"
+                          placeholder="Min 6 characters" 
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700 block mb-1">Confirm New Password</label>
+                        <input 
+                          type="password" 
+                          id="confirmPassword"
+                          placeholder="••••••••" 
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all outline-none"
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700 font-bold h-12 shadow-lg shadow-green-200"
+                      onClick={async () => {
+                        const newPassword = (document.getElementById("newPassword") as HTMLInputElement).value;
+                        const confirmPassword = (document.getElementById("confirmPassword") as HTMLInputElement).value;
+                        
+                        if (newPassword.length < 6) {
+                          toast.error("Password must be at least 6 characters");
+                          return;
+                        }
+                        if (newPassword !== confirmPassword) {
+                          toast.error("Passwords do not match");
+                          return;
+                        }
+
+                        try {
+                          const { updateUser } = await import("@/lib/api");
+                          if (user?.id) {
+                            await updateUser(user.id, { password: newPassword });
+                            toast.success("Password updated successfully");
+                            (document.getElementById("newPassword") as HTMLInputElement).value = "";
+                            (document.getElementById("confirmPassword") as HTMLInputElement).value = "";
+                          }
+                        } catch (err) {
+                          toast.error("Failed to update password");
+                        }
+                      }}
+                    >
+                      Update Password
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Bottom Quick Actions */}
               <div className="mt-12 pt-8 border-t border-gray-50 hidden sm:flex items-center gap-4">

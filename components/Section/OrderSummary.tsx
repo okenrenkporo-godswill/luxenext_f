@@ -86,18 +86,18 @@ export default function StepSummary({ onBack }: StepSummaryProps) {
                                  <p className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug">{item.name}</p>
                                  <p className="text-xs text-green-600 mt-1 font-medium">In Stock</p>
                                  <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
-                                 <p className="font-bold text-gray-900 mt-2">${(item.price * item.quantity).toFixed(2)}</p>
+                                 <p className="font-bold text-gray-900 mt-2">₦{(item.price * item.quantity).toLocaleString()}</p>
                               </div>
                            </div>
                         ))}
                      </div>
                  </div>
-
+ 
                  {/* Order Totals */}
                  <div className="bg-gray-50 rounded-xl p-4 space-y-2">
                     <div className="flex justify-between text-sm text-gray-600">
                        <span>Subtotal ({items.length} items)</span>
-                       <span>${total.toFixed(2)}</span>
+                       <span>₦{total.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-600">
                        <span>Shipping</span>
@@ -105,7 +105,7 @@ export default function StepSummary({ onBack }: StepSummaryProps) {
                     </div>
                      <div className="flex justify-between items-center font-bold text-lg pt-2 border-t border-gray-200 mt-2 text-gray-900">
                        <span>Order Total</span>
-                       <span className="text-red-700">${total.toFixed(2)}</span>
+                       <span className="text-red-700">₦{total.toLocaleString()}</span>
                     </div>
                  </div>
 
