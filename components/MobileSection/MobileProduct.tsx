@@ -1,18 +1,64 @@
 "use client";
 
 import { useState } from "react";
-import { useProducts } from "@/hook/queries";
+import { useProducts, useAddCartItem, useAddWishlistItem } from "@/hook/queries";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { ShoppingBag, Heart } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 export default function MobileProductList() {
   const { data: products = [], isLoading, error } = useProducts();
   const ITEMS_PER_PAGE = 16;
   const [page, setPage] = useState(0);
+  
+  const addItem = useCartStore((state) => state.addItem);
+  const addCartMutation = useAddCartItem();
+  const addWishlistMutation = useAddWishlistItem();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn());
+  const user = useAuthStore((state) => state.user);
 
-  if (isLoading) return <p className="text-center mt-4">Loading products...</p>;
+  const handleWishlist = (e: React.MouseEvent, product: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoggedIn || !user) {
+        toast.error("Please login to save items");
+        return;
+    }
+    
+    addWishlistMutation.mutate({ user_id: user.id, product_id: product.id }, {
+      onSuccess: () => toast.success(`${product.name} saved to wishlist`),
+      onError: () => toast.error("Failed to save item")
+    });
+  };
+
+  const handleQuickAdd = (e: React.MouseEvent, product: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const itemData = {
+      product_id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.thumbnail_url || product.image_url || "/placeholder.png",
+    };
+
+    if (isLoggedIn) {
+      addCartMutation.mutate({ product_id: product.id, quantity: 1 }, {
+        onSuccess: () => toast.success(`${product.name} added to cart`),
+        onError: () => toast.error("Failed to add to cart")
+      });
+    } else {
+      addItem(itemData);
+      toast.success(`${product.name} added to cart`);
+    }
+  };
+  if (isLoading) return <p className="text-center mt-4 text-sm text-gray-500 font-medium">Elevating your style...</p>;
   if (error) return <p className="text-center mt-4">Failed to load products.</p>;
   if (products.length === 0) return <p className="text-center mt-4">No products found.</p>;
 
@@ -22,67 +68,106 @@ export default function MobileProductList() {
 
   return (
     <div className="px-3 mt-4">
-      <div className="flex items-center mb-4">
-        <span className="w-2 h-6 bg-red-700 rounded mr-2"></span>
-        <h2 className="text-black font-bold text-lg">Product</h2>
+      <div className="flex items-center mb-6">
+        <span className="w-2 h-6 bg-green-800 rounded mr-2"></span>
+        <h2 className="text-black font-black text-xl tracking-tighter uppercase">Products</h2>
       </div>
 
-      {/* Product Grid */}
-      <div className="grid grid-cols-4 gap-3">
+      {/* Product Grid - 2 Column Premium Minimalist */}
+      <div className="grid grid-cols-2 gap-x-5 gap-y-12 px-2">
         <AnimatePresence>
-          {visibleProducts.map((product) => (
+          {visibleProducts.map((product, i) => (
             <motion.div
               key={product.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: (i % 4) * 0.1, duration: 0.5 }}
+              viewport={{ once: true }}
+              className="flex flex-col group"
             >
-              {/* Navigate to Product Detail page on click */}
-              <Link href={`/products/${product.id}`} className="w-16 h-16 relative">
-                <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200 cursor-pointer hover:scale-105 transition-transform duration-300 relative">
-                  <Image
-                    src={product.thumbnail_url || "/placeholder.png"}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </Link>
+              {/* Image Container */}
+              <div className="relative aspect-square mb-4 overflow-hidden bg-gray-50 rounded-2xl group">
+                  <Link href={`/products/${product.id}`} className="block w-full h-full">
+                    <Image
+                        src={product.thumbnail_url || "/placeholder.png"}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  </Link>
+                  {/* Badge */}
+                  <div className="absolute top-3 left-3 bg-black text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest pointer-events-none">
+                    New Arrival
+                  </div>
+                  {/* Heart Icon */}
+                  <button 
+                    onClick={(e) => handleWishlist(e, product)}
+                    className="absolute top-3 right-3 w-8 h-8 bg-white/70 backdrop-blur-md rounded-lg flex items-center justify-center shadow-sm transform -translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 active:scale-90"
+                  >
+                    <Heart className="w-4 h-4 text-gray-500" />
+                  </button>
+                  {/* Quick Add Button */}
+                  <button 
+                    onClick={(e) => handleQuickAdd(e, product)}
+                    className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 active:scale-90"
+                  >
+                    <ShoppingBag className="w-5 h-5 text-green-900" strokeWidth={2.5} />
+                  </button>
+              </div>
 
-              <p className="text-[10px] font-semibold text-center mt-1 truncate w-16">
-                {product.name.length > 12 ? product.name.slice(0, 12) + "..." : product.name}
-              </p>
-              <p className="text-green-700 font-bold text-[10px] mt-0.5">₦{product.price}</p>
+              {/* Product Info - Minimalist & Centered */}
+              <div className="text-center px-1">
+                  <h3 className="text-sm font-bold text-gray-900 truncate mb-1">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-sm font-black text-green-800 tracking-tight">₦{(product.price).toLocaleString()}</span>
+                    <span className="text-[10px] text-gray-300 line-through font-bold">₦{(product.price * 1.2).toLocaleString()}</span>
+                  </div>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
-      {/* View More / Previous Section */}
-      <div className="mt-6 px-4 py-4 bg-gradient-to-r from-green-900 to-gray-800 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-lg text-gray-200 flex-1 text-center sm:text-left">
-          Explore more products and exclusive deals now!
-        </p>
-
+      {/* Pagination - Themed Minimalist */}
+      <div className="mt-16 flex justify-center items-center gap-6">
+        {page > 0 && (
+          <button
+            onClick={() => {
+                setPage((prev) => prev - 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-green-700 transition-colors"
+          >
+            Prev
+          </button>
+        )}
+        
         <div className="flex gap-2">
-          {page > 0 && (
-            <Button
-              onClick={() => setPage((prev) => prev - 1)}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full shadow hover:bg-gray-400 transition-colors duration-300"
-            >
-              Previous
-            </Button>
-          )}
-          {page < totalPages - 1 && (
-            <Button
-              onClick={() => setPage((prev) => prev + 1)}
-              className="px-4 py-2 bg-green-700 text-white rounded-full shadow hover:bg-green-800 transition-colors duration-300"
-            >
-              View More
-            </Button>
-          )}
+            {[...Array(totalPages)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1.5 transition-all duration-300 rounded-full ${page === i ? 'w-8 bg-green-700' : 'w-2 bg-gray-200'}`} 
+                  onClick={() => {
+                      setPage(i);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+            ))}
         </div>
+
+        {page < totalPages - 1 && (
+          <button
+            onClick={() => {
+                setPage((prev) => prev + 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="text-[10px] font-black uppercase tracking-widest text-gray-900 hover:text-green-700 transition-colors"
+          >
+            Next
+          </button>
+        )}
       </div>
     </div>
   );

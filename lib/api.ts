@@ -382,6 +382,11 @@ export const fetchUserOrders = async (tokenOverride?: string): Promise<OrderHist
   return res.data.data;
 };
 
+export const deleteUserOrder = async (order_id: number): Promise<{ message: string }> => {
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/orders/user/${order_id}/`);
+  return res.data;
+};
+
 export const fetchOrderById = async (order_id: number): Promise<OrderResponse> => {
   const res = await apiClient.get<ApiResponse<OrderResponse>>(`/orders/${order_id}/`);
   return res.data.data;

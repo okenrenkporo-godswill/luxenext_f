@@ -54,9 +54,9 @@ export default function AccountDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-200">
-          <User className="w-6 h-6" />
-          <span className="hidden lg:inline text-sm font-medium">
+        <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-inherit">
+          <User className="w-6 h-6" strokeWidth={2} />
+          <span className="hidden lg:inline text-sm font-black">
             {user ? `Hi, ${user.username}` : "Account"}
           </span>
           <ChevronDown className="w-4 h-4 opacity-50" />

@@ -109,33 +109,50 @@ export default function HeroImage() {
           <SwiperSlide key={slide.id}>
             <div className="relative w-full h-full">
               {slide.type === "image" ? (
-                <Image src={slide.src} alt={slide.title} fill className="object-cover object-center" />
+                <Image src={slide.src} alt={slide.title} fill className="object-cover object-center scale-105" />
               ) : (
                 <video
                   id={`video-${slide.id}`}
                   src={slide.src}
                   muted
                   playsInline
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover scale-105"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="absolute bottom-20 left-0 w-full text-center text-white px-4"
-              >
-                <h2 className="text-lg md:text-2xl font-semibold mb-1 drop-shadow-md">{slide.title}</h2>
-                <p className="text-xs md:text-sm text-gray-200 mb-3">{slide.subtitle}</p>
-                <Link
-                  href={slide.link}
-                  className="bg-white text-black text-xs md:text-sm font-semibold px-5 py-2 rounded-full shadow-md hover:bg-gray-100 transition-all duration-300"
+              {/* Premium Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              
+              <div className="absolute inset-0 flex items-center justify-center px-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="text-center w-full"
                 >
-                  {slide.button}
-                </Link>
-                <div className="custom-pagination mt-4 flex justify-center space-x-2"></div>
-              </motion.div>
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.8 }}
+                    className="inline-block px-4 py-1 mb-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full"
+                  >
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/80">New Collection 2026</span>
+                  </motion.div>
+                  
+                  <h2 className="text-4xl md:text-6xl font-black text-white mb-3 tracking-tighter drop-shadow-2xl">
+                    {slide.title}
+                  </h2>
+                  <p className="text-sm md:text-lg text-white/70 mb-8 max-w-xs mx-auto font-medium">
+                    {slide.subtitle}
+                  </p>
+                  
+                  <Link
+                    href={slide.link}
+                    className="inline-flex items-center justify-center bg-white text-black text-sm font-black px-10 py-4 rounded-full shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:bg-gray-100 hover:scale-105 transition-all duration-300 active:scale-95"
+                  >
+                    {slide.button}
+                  </Link>
+                </motion.div>
+              </div>
             </div>
           </SwiperSlide>
         ))}

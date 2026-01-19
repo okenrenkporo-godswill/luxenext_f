@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
-import { useProduct, useProductsByCategory, useAddCartItem } from "@/hook/queries";
+import { useProduct, useProductsByCategory, useAddCartItem, useAddWishlistItem } from "@/hook/queries";
 import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import Image from "next/image";
@@ -24,12 +24,24 @@ export default function ProductDetailPage() {
 
   const addItem = useCartStore((state) => state.addItem);
   const removeItem = useCartStore((state) => state.removeItem);
+  const isCartOpen = useCartStore((state) => state.isOpen);
   const addCartMutation = useAddCartItem();
+  const addWishlistMutation = useAddWishlistItem();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn());
+  const user = useAuthStore((state) => state.user);
 
   const { data: relatedProducts, isLoading: relatedLoading } = useProductsByCategory(
     product?.category_id || ""
   );
+
+  const handleWishlist = () => {
+    if (!product || !user) {
+        toast.error("Please login to save items");
+        return;
+    }
+    setLiked(!liked);
+    addWishlistMutation.mutate({ user_id: user.id, product_id: product.id });
+  };
 
   
   const handleAddToCart = (product: any, quantity: number) => {
@@ -114,7 +126,7 @@ export default function ProductDetailPage() {
   // Main Product Page
   // -------------------------
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
+    <div className="bg-gray-50 min-h-screen pb-40">
       {/* Product Image */}
       <div className="relative bg-white shadow-sm">
         <Image
@@ -125,9 +137,9 @@ export default function ProductDetailPage() {
           className="w-full h-[380px] object-cover rounded-b-3xl"
         />
         <button
-          onClick={() => setLiked(!liked)}
-          className={`absolute top-5 right-5 bg-white p-2 rounded-full shadow-md ${
-            liked ? "text-red-500" : "text-gray-700"
+          onClick={handleWishlist}
+          className={`absolute top-5 right-5 bg-white p-2 rounded-full shadow-md transition-all active:scale-90 ${
+            liked ? "text-red-500 scale-110" : "text-gray-700"
           }`}
         >
           <Heart fill={liked ? "currentColor" : "none"} size={22} />
@@ -179,15 +191,21 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Floating Cart Buttons */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg px-4 py-3 flex items-center justify-between gap-3">
-        <Button
-          onClick={() => handleAddToCart(product, quantity)}
-          className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
-        >
-          <ShoppingBag size={18} /> Add to Cart
-        </Button>
-       
-      </div>
+      {!isCartOpen && (
+        <div className="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] px-6 py-5 flex items-center justify-between gap-4 z-50 rounded-t-[2.5rem]">
+          <div className="flex flex-col">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Price</span>
+              <span className="text-xl font-black text-gray-900">₦{(product.price * quantity).toLocaleString()}</span>
+          </div>
+          <Button
+            onClick={() => handleAddToCart(product, quantity)}
+            className="flex-1 bg-green-800 hover:bg-green-900 text-white font-bold py-7 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-green-100 transition-all active:scale-95"
+          >
+            <ShoppingBag size={20} strokeWidth={2.5} /> 
+            <span className="text-sm">Add to Cart</span>
+          </Button>
+        </div>
+      )}
 
       {/* Related Section */}
       <div className="mt-10 px-4">

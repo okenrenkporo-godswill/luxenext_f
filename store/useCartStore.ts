@@ -13,11 +13,13 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   total: number;
+  isOpen: boolean;
   addItem: (item: CartItem) => void;
   updateItem: (item: CartItem) => void;
   removeItem: (product_id: number) => void;
   clear: () => void;
   setCart: (items: CartItem[]) => void;
+  setOpen: (open: boolean) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -25,6 +27,9 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       total: 0,
+      isOpen: false,
+
+      setOpen: (isOpen: boolean) => set({ isOpen }),
 
       setCart: (items: CartItem[]) =>
         set({

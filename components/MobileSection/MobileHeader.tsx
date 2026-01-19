@@ -17,7 +17,8 @@ import MobileCart from "./MobileCart";
 export default function MobileHeader() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
+  const isOpen = useCartStore((state) => state.isOpen);
+  const setOpen = useCartStore((state) => state.setOpen);
 
   const cartCount = useCartStore((state) =>
     state.items.reduce((acc, item) => acc + item.quantity, 0)
@@ -30,31 +31,34 @@ export default function MobileHeader() {
   if (!mounted) return <div className="h-16 bg-white w-full animate-pulse" />;
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200">
-      <div className="flex items-center justify-between px-4 h-16">
-        {/* Left: Menu Toggle */}
-        
-
-        {/* Center: Logo */}
+    <header className="sticky top-0 z-50 bg-[#0e4b31] border-b border-white/5 shadow-2xl transition-all duration-300">
+      <div className="flex items-center justify-between px-5 h-16">
+        {/* Left: Branding */}
         <div 
-          className="flex-1 text-center cursor-pointer"
+          className="flex flex-row items-center gap-3 cursor-pointer"
           onClick={() => router.push("/")}
         >
-          <span className="text-xl font-bold text-green-700">LuxeNext</span>
+          <div className="w-10 h-10 bg-[#0e4b31] rounded-xl flex items-center justify-center shadow-lg border border-white/20">
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
+              <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z" />
+            </svg>
+          </div>
+          <span className="text-xl font-serif italic text-white tracking-tight">Luxenext</span>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
-          <AccountDropdown />
+        <div className="flex items-center gap-3">
+          <div className="text-white">
+            <AccountDropdown />
+          </div>
           
-          {/* Custom Mobile Cart Button */}
           <button 
-            onClick={() => setCartOpen(true)}
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+            onClick={() => setOpen(true)}
+            className="relative p-2 rounded-full bg-white/10 hover:bg-white/15 transition-all"
           >
-            <ShoppingCart className="w-6 h-6 text-gray-700 dark:text-gray-200" />
+            <ShoppingCart className="w-5 h-5 text-white" />
             {cartCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[#0e4b31]">
                 {cartCount}
               </span>
             )}
@@ -62,13 +66,13 @@ export default function MobileHeader() {
         </div>
       </div>
 
-      {/* Full width search bar below top row */}
-      <div className="px-4 pb-3">
+      {/* Full width search bar wrapper */}
+      <div className="px-5 pb-3.5">
         <SearchBar />
       </div>
 
       {/* Cart Drawer */}
-      <MobileCart open={cartOpen} setOpen={setCartOpen} />
+      <MobileCart open={isOpen} setOpen={setOpen} />
     </header>
   );
 }

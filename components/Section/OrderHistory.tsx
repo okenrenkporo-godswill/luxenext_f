@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import OrderDetailsModal from "../MobileSection/MobileOrdetail";
+import { useDeleteUserOrder } from "@/hook/queries";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -28,10 +31,17 @@ export default function OrderHistoryDrawer({ open, setOpen }: Props) {
   const { data: orders, isLoading, isError } = useOrderHistory();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const deleteOrder = useDeleteUserOrder();
 
   const handleViewOrder = (order: any) => {
     setSelectedOrder(order);
     setModalOpen(true);
+  };
+
+  const handleDeleteOrder = (id: number) => {
+    if (confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+      deleteOrder.mutate(id);
+    }
   };
 
   return (
@@ -72,7 +82,7 @@ export default function OrderHistoryDrawer({ open, setOpen }: Props) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="border border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                    className="border border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 relative group"
                   >
                     <div className="flex justify-between items-center">
                       <div>
@@ -94,7 +104,7 @@ export default function OrderHistoryDrawer({ open, setOpen }: Props) {
                               ? "bg-green-100 text-green-700"
                               : order.status === "processing"
                               ? "bg-yellow-100 text-yellow-700"
-                              : order.status === "cancelled"
+                              : order.status === "cancelled" || order.status === "canceled"
                               ? "bg-red-100 text-red-700"
                               : "bg-gray-100 text-gray-600"
                           }`}
@@ -119,20 +129,31 @@ export default function OrderHistoryDrawer({ open, setOpen }: Props) {
                           <CheckCircle className="w-4 h-4 text-green-600" />
                         ) : order.status === "processing" ? (
                           <Truck className="w-4 h-4 text-yellow-600" />
-                        ) : order.status === "cancelled" ? (
+                        ) : order.status === "cancelled" || order.status === "canceled" ? (
                           <XCircle className="w-4 h-4 text-red-600" />
                         ) : (
                           <Package className="w-4 h-4 text-gray-600" />
                         )}
                         {(order.items?.length || 0)} item(s)
                       </div>
-                      <Button
-                        variant="link"
-                        onClick={() => handleViewOrder(order)}
-                        className="text-green-900 hover:text-green-700 font-medium"
-                      >
-                        View →
-                      </Button>
+                      
+                      <div className="flex items-center gap-2">
+                        {(order.status === "pending" || order.status === "cancelled" || order.status === "canceled" || order.status === "failed") && (
+                             <button 
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="p-2 text-red-400 hover:text-red-600 transition-colors"
+                             >
+                                <Trash2 className="w-4 h-4" />
+                             </button>
+                        )}
+                        <Button
+                            variant="link"
+                            onClick={() => handleViewOrder(order)}
+                            className="text-green-900 hover:text-green-700 font-medium h-auto p-0"
+                        >
+                            View →
+                        </Button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}

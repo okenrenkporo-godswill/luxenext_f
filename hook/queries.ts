@@ -44,6 +44,7 @@ import {
   fetchAdminOrderById,
   updateOrderStatus,
   deleteOrder,
+  deleteUserOrder,
   cancelOrder,
   AdminOrderItem,
   UpdateOrderStatusPayload,
@@ -713,5 +714,19 @@ export const useDeleteWishlistItem = () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
     },
     onError: () => toast.error("Failed to remove item from wishlist"),
+  });
+};
+
+export const useDeleteUserOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (order_id: number) => deleteUserOrder(order_id),
+    onSuccess: () => {
+      toast.success("Order deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["orderHistory"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to delete order");
+    },
   });
 };
