@@ -101,7 +101,7 @@ export function Login() {
                     </svg>
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 leading-tight">Welcome Back</h2>
-                <p className="mt-2 text-gray-500 font-medium">Welcome to Luxenext - Login to your account</p>
+                <p className="mt-2 text-gray-500 font-medium">Login to your account</p>
             </div>
             
             <div className="w-full h-px bg-gray-100 mb-10" />
@@ -136,7 +136,7 @@ export function Login() {
                         <button 
                             type="button" 
                             onClick={() => router.push("/forgot-password")}
-                            className="text-sm font-semibold text-gray-900 hover:text-[#0e4b31] transition-colors"
+                            className="text-sm font-semibold text-green-800 hover:text-[#0e4b31] transition-colors"
                         >
                             Forgot?
                         </button>

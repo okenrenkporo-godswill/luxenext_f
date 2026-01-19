@@ -20,9 +20,7 @@ const registerSchema = z
     username: z
       .string()
       .min(3, { message: "Username must be at least 3 characters" })
-      .max(30)
-      .optional()
-      .or(z.literal("")),
+      .max(30),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
     confirmPassword: z.string().min(6),
   })
@@ -50,7 +48,7 @@ export default function RegisterCard() {
     try {
       const payload = {
         email: values.email,
-        username: values.username || undefined,
+        username: values.username,
         password: values.password,
       };
 
@@ -116,6 +114,24 @@ export default function RegisterCard() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-700">Username</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="Choose a username" 
+                        className="h-12 rounded-xl border-gray-200 focus:ring-[#0e4b31] focus:border-[#0e4b31]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="email"
