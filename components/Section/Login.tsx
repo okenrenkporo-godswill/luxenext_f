@@ -73,7 +73,6 @@ export function Login() {
       router.replace(rolePath);
 
     } catch (err: any) {
-      console.error("Login error:", err);
       toast.error(err?.message || "Something went wrong");
     } finally {
       setLoading(false);

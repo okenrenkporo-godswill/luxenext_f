@@ -78,7 +78,6 @@ export default function RegisterCard() {
       setTimeout(() => router.replace(`/auth/verify?email=${encodeURIComponent(values.email)}`), 1000);
 
     } catch (err: any) {
-      console.error("Register error:", err);
       toast.error(err?.message || "Something went wrong");
     } finally {
       setLoading(false);

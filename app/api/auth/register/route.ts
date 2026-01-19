@@ -40,10 +40,16 @@ export async function POST(request: NextRequest) {
 
     if (isAxiosError(error)) {
       status = error.response?.status || 500;
-      message = error.response?.data?.detail || error.message;
-      console.error(`Register failed [${status}]:`, message);
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        // Sanitize Pydantic error: only show the error message, hide the input data
+        message = detail.map((d: any) => `${d.msg} (${d.loc[d.loc.length - 1]})`).join(", ");
+      } else {
+        message = detail || error.message;
+      }
     } else {
-      console.error("Unexpected error during register:", error);
+      // Just a placeholder, we can log to a proper logging service in the future
     }
 
     return NextResponse.json({ error: message }, { status });
