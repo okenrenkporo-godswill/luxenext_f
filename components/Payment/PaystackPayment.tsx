@@ -51,10 +51,23 @@ export default function PaystackPayment() {
       console.log("Step 4: Resuming transaction with code:", response.access_code);
       // Resume transaction with access_code from backend
       popup.resumeTransaction(response.access_code, {
-        onSuccess: (transaction) => {
-          console.log("Step 5: Payment Success!", transaction);
-          toast.success("Payment successful! Reference: " + transaction.reference);
-          router.push("/orders");
+        onSuccess: async (transaction) => {
+          console.log("Step 5: Payment Success! Reference:", transaction.reference);
+          
+          try {
+            // Verify payment on backend
+            console.log("Step 6: Verifying payment on backend...");
+            const { verifyPaystackPayment } = await import("@/lib/api");
+            await verifyPaystackPayment({ reference: transaction.reference });
+            console.log("Step 7: Payment verified successfully!");
+            
+            toast.success("Payment successful and verified!");
+            router.push("/orders");
+          } catch (verifyErr) {
+            console.error("Verification failed:", verifyErr);
+            toast.warning("Payment successful, but verification is pending. We will update your order soon.");
+            router.push("/orders");
+          }
         },
         onClose: () => {
           console.log("Step 5: Payment Closed/Cancelled");
@@ -108,7 +121,7 @@ export default function PaystackPayment() {
     <div className="mx-auto max-w-md px-4 py-12">
       <div className="rounded-2xl border bg-white p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
-           <Image src="/icons/paystack.svg" alt="Paystack" width={120} height={40} />
+           <Image src="paystack.png" alt="Paystack" width={120} height={40} />
         </div>
         
         <h1 className="mb-2 text-center text-2xl font-bold text-gray-900">Complete Payment</h1>

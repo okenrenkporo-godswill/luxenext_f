@@ -574,3 +574,11 @@ export const resetPassword = async (token: string, new_password: string) => {
   });
   return res.data;
 };
+
+// ===============================
+// 🗑️ Order Deletion
+// ===============================
+export const deleteMyOrder = async (order_id: number): Promise<{ message: string }> => {
+  const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/orders/user/${order_id}`);
+  return res.data.data;
+};

@@ -103,7 +103,7 @@ export default function StepPayment({ onNext, onBack, collapsed = false, onEdit 
                <div className="flex-1">
                   <div className="flex justify-between items-center mb-1">
                      <p className="font-bold text-gray-900 text-base">Bank Transfer</p>
-                     <Image src="/icons/opay.png" alt="OPay" width={24} height={24} className="opacity-80 rounded-sm" /> 
+                     <Image src="opay.png" alt="OPay" width={24} height={24} className="opacity-80 rounded-sm" /> 
                   </div>
                   
                   <p className="text-sm text-gray-700">
