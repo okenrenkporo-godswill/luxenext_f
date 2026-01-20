@@ -10,7 +10,7 @@ export default function Hero() {
     <div className="relative h-screen w-full flex items-center justify-center bg-[#c86d5d]">
       {/* Background Image */}
       <Image
-        src="/heros.jpg"
+        src="/mob.jpg"
         alt="Luxenext Hero"
         fill
         className="object-cover opacity-90"
@@ -60,7 +60,7 @@ export default function Hero() {
             href="/mobile" // ← change this to your destination route
             className="p-6 rounded-full border-4 border-white shadow-lg hover:scale-105 transition-all duration-300"
             style={{
-              backgroundColor: "#c86d5d", // inner circle color
+              backgroundColor: "#163516ff", // inner circle color
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
