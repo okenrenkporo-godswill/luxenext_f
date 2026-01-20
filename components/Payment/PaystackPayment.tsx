@@ -51,19 +51,9 @@ export default function PaystackPayment() {
       console.log("Step 4: Resuming transaction with code:", response.access_code);
       // Resume transaction with access_code from backend
       popup.resumeTransaction(response.access_code, {
-        onSuccess: async (transaction) => {
-          console.log("Step 5: Payment Success! Reference:", transaction.reference);
-          
-          try {
-            const { verifyPaystackPayment } = await import("@/lib/api");
-            await verifyPaystackPayment({ reference: transaction.reference });
-            console.log("Step 6: Payment verified on backend.");
-            toast.success("Payment successful and verified!");
-          } catch (verifyErr) {
-            console.error("Verification failed, but payment was successful:", verifyErr);
-            toast.warning("Payment successful, but verification is pending. We will update your order soon.");
-          }
-          
+        onSuccess: (transaction) => {
+          console.log("Step 5: Payment Success!", transaction);
+          toast.success("Payment successful! Reference: " + transaction.reference);
           router.push("/orders");
         },
         onClose: () => {

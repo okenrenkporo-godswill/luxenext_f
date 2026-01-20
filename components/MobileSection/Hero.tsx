@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (
-    <div className="relative h-screen w-full flex items-center justify-center bg-[#c86d5d]">
+    <div className="relative h-screen w-full flex items-center justify-center ">
       {/* Background Image */}
       <Image
         src="/mob.jpg"
