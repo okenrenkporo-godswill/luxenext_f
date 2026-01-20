@@ -1,20 +1,19 @@
-"use client";
-import { useEffect, useState } from "react";
-
 import MobileHome from "@/components/MobileSection/MobileHome";
 import HomePage from "@/components/Section/HomePage";
-import { isMobile } from "@/lib/mobile";
 import Hero from "@/components/MobileSection/Hero";
 
 export default function Page() {
-  const [mobile, setMobile] = useState(false);
+  return (
+    <>
+      {/* Mobile View - Hidden on desktop */}
+      <div className="block md:hidden">
+        <Hero />
+      </div>
 
-  useEffect(() => {
-    setMobile(isMobile());
-    const handleResize = () => setMobile(isMobile());
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return <>{mobile ? <Hero /> : <HomePage />}</>;
+      {/* Desktop View - Hidden on mobile */}
+      <div className="hidden md:block">
+        <HomePage />
+      </div>
+    </>
+  );
 }
