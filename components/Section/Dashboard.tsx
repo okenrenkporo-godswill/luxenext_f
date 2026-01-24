@@ -28,6 +28,7 @@ import {
   MoreVertical,
   ChevronRight
 } from "lucide-react";
+import { useTheme } from "@/components/ThemeContext";
 
 ChartJS.register(
   CategoryScale,
@@ -49,29 +50,30 @@ const Dashboard = () => {
     isLoading: productsLoading,
     isError: productsError,
   } = useTopProducts();
+  const { isDark } = useTheme();
 
   if (ordersLoading) {
     return (
-      <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-              <Skeleton className="h-4 w-24 mb-4" />
-              <Skeleton className="h-8 w-32 mb-4" />
-              <Skeleton className="h-4 w-20" />
+            <div key={i} className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 border shadow-sm ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"}`}>
+              <Skeleton className={`h-4 w-24 mb-4 ${isDark ? "bg-slate-700" : ""}`} />
+              <Skeleton className={`h-8 w-32 mb-4 ${isDark ? "bg-slate-700" : ""}`} />
+              <Skeleton className={`h-4 w-20 ${isDark ? "bg-slate-700" : ""}`} />
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-            <Skeleton className="h-6 w-40 mb-6" />
-            <Skeleton className="h-64 w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className={`lg:col-span-2 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border shadow-sm ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"}`}>
+            <Skeleton className={`h-6 w-40 mb-6 ${isDark ? "bg-slate-700" : ""}`} />
+            <Skeleton className={`h-48 sm:h-64 w-full ${isDark ? "bg-slate-700" : ""}`} />
           </div>
-          <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-            <Skeleton className="h-6 w-40 mb-6" />
+          <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 border shadow-sm ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"}`}>
+            <Skeleton className={`h-6 w-40 mb-6 ${isDark ? "bg-slate-700" : ""}`} />
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full rouned-xl" />
+                <Skeleton key={i} className={`h-12 w-full rounded-xl ${isDark ? "bg-slate-700" : ""}`} />
               ))}
             </div>
           </div>
@@ -80,7 +82,7 @@ const Dashboard = () => {
     );
   }
 
-  if (ordersError) return <div className="p-8 text-center text-red-500 bg-red-50 rounded-3xl border border-red-100 italic">Failed to load dashboard data. Please try again.</div>;
+  if (ordersError) return <div className={`p-6 sm:p-8 text-center rounded-2xl sm:rounded-3xl border italic ${isDark ? "bg-rose-900/20 border-rose-800 text-rose-400" : "bg-red-50 border-red-100 text-red-500"}`}>Failed to load dashboard data. Please try again.</div>;
 
   const totalRevenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
   const totalOrders = orders.length;
@@ -94,7 +96,7 @@ const Dashboard = () => {
       growth: "+12.5%", 
       isUp: true, 
       icon: DollarSign,
-      color: "bg-emerald-50 text-emerald-600"
+      color: isDark ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-50 text-emerald-600"
     },
     { 
       title: "Total Orders", 
@@ -102,7 +104,7 @@ const Dashboard = () => {
       growth: "+8.2%", 
       isUp: true, 
       icon: ShoppingBag,
-      color: "bg-blue-50 text-blue-600" 
+      color: isDark ? "bg-blue-900/30 text-blue-400" : "bg-blue-50 text-blue-600" 
     },
     { 
       title: "Pending Payments", 
@@ -110,7 +112,7 @@ const Dashboard = () => {
       growth: "-2.4%", 
       isUp: false, 
       icon: Clock,
-      color: "bg-amber-50 text-amber-600" 
+      color: isDark ? "bg-amber-900/30 text-amber-400" : "bg-amber-50 text-amber-600" 
     },
     { 
       title: "Cancelled Orders", 
@@ -118,7 +120,7 @@ const Dashboard = () => {
       growth: "+0.5%", 
       isUp: false, 
       icon: XCircle,
-      color: "bg-rose-50 text-rose-600" 
+      color: isDark ? "bg-rose-900/30 text-rose-400" : "bg-rose-50 text-rose-600" 
     },
   ];
 
@@ -137,14 +139,14 @@ const Dashboard = () => {
         backgroundColor: (context: any) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-          gradient.addColorStop(0, "rgba(14, 75, 49, 0.15)");
-          gradient.addColorStop(1, "rgba(14, 75, 49, 0.01)");
+          gradient.addColorStop(0, isDark ? "rgba(14, 75, 49, 0.25)" : "rgba(14, 75, 49, 0.15)");
+          gradient.addColorStop(1, isDark ? "rgba(14, 75, 49, 0.02)" : "rgba(14, 75, 49, 0.01)");
           return gradient;
         },
         fill: true,
         tension: 0.4,
         pointBackgroundColor: "#0e4b31",
-        pointBorderColor: "#fff",
+        pointBorderColor: isDark ? "#1e293b" : "#fff",
         pointBorderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
@@ -170,40 +172,50 @@ const Dashboard = () => {
     .slice(0, 6);
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12">
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {metrics.map((m, i) => (
-          <div key={i} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-2.5 rounded-2xl ${m.color}`}>
-                <m.icon className="w-5 h-5" />
+          <div key={i} className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 ${
+            isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"
+          }`}>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className={`p-2 sm:p-2.5 rounded-xl sm:rounded-2xl ${m.color}`}>
+                <m.icon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${m.isUp ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
-                {m.isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              <div className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold ${
+                m.isUp 
+                  ? (isDark ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-50 text-emerald-600") 
+                  : (isDark ? "bg-rose-900/30 text-rose-400" : "bg-rose-50 text-rose-600")
+              }`}>
+                {m.isUp ? <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <TrendingDown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
                 {m.growth}
               </div>
             </div>
-            <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">{m.title}</p>
-            <h4 className="text-2xl font-bold text-gray-900">{m.value}</h4>
+            <p className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>{m.title}</p>
+            <h4 className={`text-lg sm:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{m.value}</h4>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
         {/* Main Chart */}
-        <div className="lg:col-span-2 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
+        <div className={`lg:col-span-2 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border shadow-sm ${
+          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"
+        }`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Revenue Overview</h3>
-              <p className="text-sm text-gray-500">Sales performance across the year</p>
+              <h3 className={`text-base sm:text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Revenue Overview</h3>
+              <p className={`text-xs sm:text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>Sales performance across the year</p>
             </div>
-            <select className="bg-gray-50 border-none rounded-xl px-4 py-2 text-sm font-medium text-gray-600 focus:ring-2 focus:ring-[#0e4b31]/10">
+            <select className={`border-none rounded-xl px-3 sm:px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-[#0e4b31]/20 ${
+              isDark ? "bg-slate-700 text-gray-200" : "bg-gray-50 text-gray-600"
+            }`}>
               <option>Year 2026</option>
               <option>Year 2025</option>
             </select>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-[200px] sm:h-[300px] w-full">
             <Line 
               data={revenueData} 
               options={{
@@ -211,8 +223,14 @@ const Dashboard = () => {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                  y: { grid: { display: false }, ticks: { font: { size: 11 } } },
-                  x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                  y: { 
+                    grid: { display: false, color: isDark ? "#334155" : "#f3f4f6" }, 
+                    ticks: { font: { size: 10 }, color: isDark ? "#9ca3af" : "#6b7280" } 
+                  },
+                  x: { 
+                    grid: { display: false }, 
+                    ticks: { font: { size: 10 }, color: isDark ? "#9ca3af" : "#6b7280" } 
+                  }
                 }
               }} 
             />
@@ -220,23 +238,29 @@ const Dashboard = () => {
         </div>
 
         {/* Top Products Mini List */}
-        <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Top Products</h3>
-            <button className="text-[#0e4b31] text-sm font-semibold hover:underline">View all</button>
+        <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border shadow-sm ${
+          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"
+        }`}>
+          <div className="mb-4 sm:mb-6 flex items-center justify-between">
+            <h3 className={`text-base sm:text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Top Products</h3>
+            <button className={`text-sm font-semibold hover:underline ${isDark ? "text-emerald-400" : "text-[#0e4b31]"}`}>View all</button>
           </div>
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             {topProducts.slice(0, 5).map((product: Product) => (
-              <div key={product.id} className="flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-2xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+              <div key={product.id} className="flex items-center gap-3 sm:gap-4 group">
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0 border ${
+                  isDark ? "bg-slate-700 border-slate-600" : "bg-gray-100 border-gray-200"
+                }`}>
                   <img src={product.image_url || "/placeholder.png"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" alt={product.name} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h5 className="text-sm font-bold text-gray-900 truncate">{product.name}</h5>
-                  <p className="text-xs text-gray-500 font-medium">₦{product.price.toLocaleString()}</p>
+                  <h5 className={`text-xs sm:text-sm font-bold truncate ${isDark ? "text-white" : "text-gray-900"}`}>{product.name}</h5>
+                  <p className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>₦{product.price.toLocaleString()}</p>
                 </div>
-                <div className="text-right">
-                    <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-block">Best Seller</div>
+                <div className="text-right hidden sm:block">
+                    <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${
+                      isDark ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-50 text-emerald-600"
+                    }`}>Best Seller</div>
                 </div>
               </div>
             ))}
@@ -245,55 +269,94 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Orders Section */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-gray-50 flex items-center justify-between">
+      <div className={`rounded-2xl sm:rounded-3xl border shadow-sm overflow-hidden ${
+        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-100"
+      }`}>
+        <div className={`p-4 sm:p-6 lg:p-8 border-b flex items-center justify-between ${isDark ? "border-slate-700" : "border-gray-50"}`}>
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Recent Orders</h3>
-            <p className="text-sm text-gray-500">Managing the latest transactions</p>
+            <h3 className={`text-base sm:text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Recent Orders</h3>
+            <p className={`text-xs sm:text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>Managing the latest transactions</p>
           </div>
-          <button className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
+          <button className={`p-2 rounded-xl transition-colors ${isDark ? "text-gray-500 hover:text-gray-300 hover:bg-slate-700" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}`}>
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+
+        {/* Mobile Card View */}
+        <div className="block sm:hidden">
+          {recentOrders.map((order) => (
+            <div key={order.id} className={`p-4 border-b last:border-b-0 ${isDark ? "border-slate-700" : "border-gray-100"}`}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] ${
+                  isDark ? "bg-slate-700 text-emerald-400" : "bg-gray-100 text-[#0e4b31]"
+                }`}>
+                  {order.user.name?.slice(0, 2).toUpperCase() || "CN"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-bold truncate ${isDark ? "text-white" : "text-gray-900"}`}>{order.user.name || "Customer"}</p>
+                  <p className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}>#{order.order_reference?.slice(-6) || order.id}</p>
+                </div>
+                <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₦{order.total_amount.toLocaleString()}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                  order.order_status === "delivered" ? (isDark ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-50 text-emerald-600") :
+                  order.order_status === "pending" ? (isDark ? "bg-amber-900/30 text-amber-400" : "bg-amber-50 text-amber-600") :
+                  order.order_status === "cancelled" || order.order_status === "canceled" ? (isDark ? "bg-rose-900/30 text-rose-400" : "bg-rose-50 text-rose-600") :
+                  (isDark ? "bg-blue-900/30 text-blue-400" : "bg-blue-50 text-blue-600")
+                }`}>
+                  {order.order_status}
+                </span>
+                <button className={`p-1.5 rounded-lg transition-colors ${isDark ? "text-gray-500 hover:text-emerald-400 hover:bg-slate-700" : "text-gray-300 hover:text-[#0e4b31] hover:bg-green-50"}`}>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table */}
+        <div className="overflow-x-auto hidden sm:block">
+          <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
-              <tr className="bg-gray-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Order ID</th>
-                <th className="px-8 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Customer</th>
-                <th className="px-8 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
-                <th className="px-8 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Total</th>
-                <th className="px-8 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Action</th>
+              <tr className={isDark ? "bg-slate-700/50" : "bg-gray-50/50"}>
+                <th className={`px-6 lg:px-8 py-4 text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}>Order ID</th>
+                <th className={`px-6 lg:px-8 py-4 text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}>Customer</th>
+                <th className={`px-6 lg:px-8 py-4 text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}>Status</th>
+                <th className={`px-6 lg:px-8 py-4 text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}>Total</th>
+                <th className={`px-6 lg:px-8 py-4 text-xs font-bold uppercase tracking-widest text-right ${isDark ? "text-gray-400" : "text-gray-500"}`}>Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className={`divide-y ${isDark ? "divide-slate-700" : "divide-gray-50"}`}>
               {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-8 py-5 text-sm font-bold text-gray-900">#{order.order_reference?.slice(-6) || order.id}</td>
-                  <td className="px-8 py-5">
+                <tr key={order.id} className={`transition-colors group ${isDark ? "hover:bg-slate-700/50" : "hover:bg-gray-50/50"}`}>
+                  <td className={`px-6 lg:px-8 py-5 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>#{order.order_reference?.slice(-6) || order.id}</td>
+                  <td className="px-6 lg:px-8 py-5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-[#0e4b31] text-[10px]">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] ${
+                        isDark ? "bg-slate-700 text-emerald-400" : "bg-gray-100 text-[#0e4b31]"
+                      }`}>
                         {order.user.name?.slice(0, 2).toUpperCase() || "CN"}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{order.user.name || "Customer"}</p>
-                        <p className="text-[10px] text-gray-400 truncate">{order.user.email}</p>
+                        <p className={`text-sm font-bold truncate ${isDark ? "text-white" : "text-gray-900"}`}>{order.user.name || "Customer"}</p>
+                        <p className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}>{order.user.email}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-6 lg:px-8 py-5">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      order.order_status === "delivered" ? "bg-emerald-50 text-emerald-600" :
-                      order.order_status === "pending" ? "bg-amber-50 text-amber-600" :
-                      order.order_status === "cancelled" || order.order_status === "canceled" ? "bg-rose-50 text-rose-600" :
-                      "bg-blue-50 text-blue-600"
+                      order.order_status === "delivered" ? (isDark ? "bg-emerald-900/30 text-emerald-400" : "bg-emerald-50 text-emerald-600") :
+                      order.order_status === "pending" ? (isDark ? "bg-amber-900/30 text-amber-400" : "bg-amber-50 text-amber-600") :
+                      order.order_status === "cancelled" || order.order_status === "canceled" ? (isDark ? "bg-rose-900/30 text-rose-400" : "bg-rose-50 text-rose-600") :
+                      (isDark ? "bg-blue-900/30 text-blue-400" : "bg-blue-50 text-blue-600")
                     }`}>
                       {order.order_status}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-sm font-bold text-gray-900">₦{order.total_amount.toLocaleString()}</td>
-                  <td className="px-8 py-5 text-right">
-                    <button className="p-2 text-gray-300 group-hover:text-[#0e4b31] transition-colors rounded-xl group-hover:bg-green-50">
+                  <td className={`px-6 lg:px-8 py-5 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₦{order.total_amount.toLocaleString()}</td>
+                  <td className="px-6 lg:px-8 py-5 text-right">
+                    <button className={`p-2 rounded-xl transition-colors ${isDark ? "text-gray-500 group-hover:text-emerald-400 group-hover:bg-slate-600" : "text-gray-300 group-hover:text-[#0e4b31] group-hover:bg-green-50"}`}>
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </td>
@@ -308,3 +371,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
